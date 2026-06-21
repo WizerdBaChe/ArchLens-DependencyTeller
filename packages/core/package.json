@@ -1,0 +1,25 @@
+{
+  "name": "@archlens/core",
+  "version": "0.1.0",
+  "description": "Static dependency parser, graph model and coupling analyzer. No UI dependencies — safe to reuse from CLI, web worker, or editor extensions.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "typescript": "^5.5.4"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.5"
+  }
+}

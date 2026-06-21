@@ -1,0 +1,67 @@
+/* ---------------------------------------------------------------------
+   ArchLens Dependency — design tokens
+   Direction: "blueprint control room" — a dependency graph read like a
+   schematic, not a generic SaaS dashboard. Deep ink-navy surface (never
+   pure black), dual accent (cyan = structure, amber = fault/cycle),
+   monospace reserved for anything that is literally a path or identifier.
+   ------------------------------------------------------------------- */
+
+:root {
+  /* Color — surfaces */
+  --color-bg: #0a1020;          /* ink navy, page backdrop */
+  --color-surface: #101a30;     /* panels, cards */
+  --color-surface-raised: #16213c; /* hovered / active surface */
+  --color-grid-line: #1b2740;   /* blueprint grid, very low contrast */
+  --color-border: #233252;
+
+  /* Color — text */
+  --color-text-primary: #e8edf7;
+  --color-text-secondary: #94a3c4;
+  --color-text-tertiary: #5d6e94;
+
+  /* Color — accents */
+  --color-accent-cyan: #4fd1c5;     /* structure / primary edges / focus */
+  --color-accent-cyan-dim: #2c6e69;
+  --color-accent-amber: #f5a524;    /* cycle / fault / warning */
+  --color-accent-amber-dim: #7a5318;
+  --color-accent-violet: #8b7cf6;   /* entry nodes */
+  --color-danger: #f0506e;
+
+  /* Typography */
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+
+  --fs-xs: 0.6875rem;   /* 11px */
+  --fs-sm: 0.8125rem;   /* 13px */
+  --fs-base: 0.9375rem; /* 15px */
+  --fs-md: 1.0625rem;   /* 17px */
+  --fs-lg: 1.375rem;    /* 22px */
+  --fs-xl: 2rem;        /* 32px */
+
+  /* Spacing scale (4/8 rhythm) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Radius / elevation */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --shadow-panel: 0 8px 30px rgba(2, 6, 16, 0.55);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-base: 220ms;
+}
+
+@media (prefers-color-scheme: light) {
+  /* MVP ships dark-only (matches "blueprint" identity); this media query
+     is reserved so a light variant can be added later without touching
+     component code — only token values would change. */
+}

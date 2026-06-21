@@ -1,0 +1,17 @@
+{
+  "name": "archlens-dependency",
+  "private": true,
+  "version": "0.1.0",
+  "description": "ArchLens Dependency — interactive dependency graph & coupling analyzer for JS/TS projects.",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @archlens/core && npm run build -w @archlens/web",
+    "test": "npm run test -w @archlens/core",
+    "dev:web": "npm run dev -w @archlens/web"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
