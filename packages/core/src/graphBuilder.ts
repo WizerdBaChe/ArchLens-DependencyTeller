@@ -17,6 +17,16 @@ import type {
   SupportedLanguage,
 } from "./types.js";
 
+// Extensions that bundlers handle as non-JS assets — not part of the module
+// graph and should never produce UNRESOLVED_IMPORT warnings.
+const NON_JS_ASSET_EXTENSIONS =
+  /\.(css|scss|sass|less|svg|png|jpg|jpeg|gif|webp|avif|ico|woff2?|ttf|eot|otf|json|json5|yaml|yml|toml|graphql|gql|d\.ts)$/i;
+
+function isNonJsAssetImport(specifier: string): boolean {
+  const bare = specifier.split("?")[0] as string; // strip ?inline, ?url, etc.
+  return NON_JS_ASSET_EXTENSIONS.test(bare);
+}
+
 export interface BuildResult {
   nodes: GraphNode[];
   edges: GraphEdge[];
@@ -81,12 +91,16 @@ export function buildGraph(files: InputFile[], alias: AliasConfig | undefined): 
         // alias-shaped path with no alias config) are flagged; genuinely
         // external bare specifiers are not graphed in MVP and are not warnings.
         if (!isBareSpecifier(rawImport.specifier) || rawImport.specifier.startsWith("@/")) {
-          warnings.push({
-            code: "UNRESOLVED_IMPORT",
-            path: file.path,
-            raw: rawImport.specifier,
-            message: `Could not resolve "${rawImport.specifier}" imported from "${file.path}".`,
-          });
+          // Non-JS asset imports (CSS, images, fonts, JSON, etc.) are valid TS/TSX
+          // syntax handled by bundlers, not part of the module graph — skip silently.
+          if (!isNonJsAssetImport(rawImport.specifier)) {
+            warnings.push({
+              code: "UNRESOLVED_IMPORT",
+              path: file.path,
+              raw: rawImport.specifier,
+              message: `Could not resolve "${rawImport.specifier}" imported from "${file.path}".`,
+            });
+          }
         }
       }
       // "external" outcomes are intentionally not graphed as nodes in MVP —
