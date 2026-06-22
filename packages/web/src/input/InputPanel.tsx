@@ -1,12 +1,14 @@
 import { useCallback, useRef, useState } from "react";
 import type { DragEvent } from "react";
+import type { InputFile } from "@archlens/core";
 import { useGraphStore } from "../store/useGraphStore";
 import { zipToFiles } from "../lib/zipToFiles";
+import { folderToFiles, isFolderPickerSupported } from "../lib/folderToFiles";
 import { parsePastedText } from "../lib/parsePastedText";
 import { parseAliasConfig } from "../lib/parseAliasConfig";
 import "./InputPanel.css";
 
-type InputMode = "zip" | "paste";
+type InputMode = "zip" | "folder" | "paste";
 
 const PASTE_PLACEHOLDER = `=== src/app.ts ===
 import { Button } from "./components/Button";
@@ -29,7 +31,23 @@ export function InputPanel() {
   const [isDragging, setIsDragging] = useState(false);
   const [localNotice, setLocalNotice] = useState<string | null>(null);
   const [zipFile, setZipFile] = useState<File | null>(null);
+  const [folderName, setFolderName] = useState<string | null>(null);
+  const [folderFiles, setFolderFiles] = useState<InputFile[] | null>(null);
+  const [isReadingFolder, setIsReadingFolder] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderPickerSupported = isFolderPickerSupported();
+
+  const switchMode = useCallback((next: InputMode) => {
+    setMode(next);
+    setLocalNotice(null);
+    if (next !== "folder") {
+      setFolderName(null);
+      setFolderFiles(null);
+    }
+    if (next !== "zip") {
+      setZipFile(null);
+    }
+  }, []);
 
   const handleFiles = useCallback((file: File) => {
     if (!file.name.toLowerCase().endsWith(".zip")) {
@@ -52,6 +70,32 @@ export function InputPanel() {
     },
     [handleFiles]
   );
+
+  const handlePickFolder = useCallback(async () => {
+    setLocalNotice(null);
+    setIsReadingFolder(true);
+    try {
+      const { files, skipped, truncated, folderName: name } = await folderToFiles();
+      setFolderName(name);
+      setFolderFiles(files);
+      if (!projectName || projectName === "my-project") {
+        setProjectName(name);
+      }
+      if (files.length === 0) {
+        setLocalNotice("No .ts/.tsx/.js/.jsx files were found in that folder.");
+      } else if (skipped.length > 0 || truncated) {
+        setLocalNotice(
+          `Found ${files.length} file(s). ${skipped.length > 0 ? `${skipped.length} oversized file(s) skipped. ` : ""}${truncated ? "File count limit reached — analysis covers the first files found." : ""}`
+        );
+      }
+    } catch (err) {
+      if (err instanceof Error && err.name !== "AbortError") {
+        setLocalNotice("Could not read the folder: " + err.message);
+      }
+    } finally {
+      setIsReadingFolder(false);
+    }
+  }, [projectName]);
 
   const handleAnalyze = useCallback(async () => {
     setLocalNotice(null);
@@ -77,6 +121,12 @@ export function InputPanel() {
         );
       }
       runAnalysis(projectName, files, alias);
+    } else if (mode === "folder") {
+      if (!folderFiles || folderFiles.length === 0) {
+        setLocalNotice("Select a folder first.");
+        return;
+      }
+      runAnalysis(projectName, folderFiles, alias);
     } else {
       const { files, noMarkersFound } = parsePastedText(pasteText);
       if (noMarkersFound) {
@@ -89,7 +139,7 @@ export function InputPanel() {
       }
       runAnalysis(projectName, files, alias);
     }
-  }, [mode, zipFile, pasteText, aliasText, projectName, runAnalysis]);
+  }, [mode, zipFile, folderFiles, pasteText, aliasText, projectName, runAnalysis]);
 
   return (
     <div className="input-panel">
@@ -108,15 +158,25 @@ export function InputPanel() {
             role="tab"
             aria-selected={mode === "zip"}
             className={`input-panel__tab ${mode === "zip" ? "is-active" : ""}`}
-            onClick={() => setMode("zip")}
+            onClick={() => switchMode("zip")}
           >
             Upload .zip
           </button>
+          {folderPickerSupported && (
+            <button
+              role="tab"
+              aria-selected={mode === "folder"}
+              className={`input-panel__tab ${mode === "folder" ? "is-active" : ""}`}
+              onClick={() => switchMode("folder")}
+            >
+              Browse folder
+            </button>
+          )}
           <button
             role="tab"
             aria-selected={mode === "paste"}
             className={`input-panel__tab ${mode === "paste" ? "is-active" : ""}`}
-            onClick={() => setMode("paste")}
+            onClick={() => switchMode("paste")}
           >
             Paste files
           </button>
@@ -167,6 +227,31 @@ export function InputPanel() {
               </>
             )}
           </div>
+        ) : mode === "folder" ? (
+          <div
+            className={`input-panel__dropzone input-panel__folder-zone${isReadingFolder ? " is-reading" : ""}`}
+            onClick={!isReadingFolder ? handlePickFolder : undefined}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if ((e.key === "Enter" || e.key === " ") && !isReadingFolder) handlePickFolder();
+            }}
+            aria-label="Pick a project folder"
+          >
+            {isReadingFolder ? (
+              <p>Reading folder…</p>
+            ) : folderName ? (
+              <>
+                <p className="input-panel__dropzone-filename">📁 {folderName}</p>
+                <p className="input-panel__hint">Click to choose a different folder</p>
+              </>
+            ) : (
+              <>
+                <p>Click to browse and select a project folder</p>
+                <p className="input-panel__hint">node_modules / dist / build / .git are skipped automatically</p>
+              </>
+            )}
+          </div>
         ) : (
           <label className="input-panel__field">
             <span>File blocks</span>
@@ -211,7 +296,7 @@ export function InputPanel() {
           type="button"
           className="input-panel__submit"
           onClick={handleAnalyze}
-          disabled={status === "analyzing"}
+          disabled={status === "analyzing" || isReadingFolder}
         >
           {status === "analyzing" ? "Analyzing…" : "Analyze project"}
         </button>
