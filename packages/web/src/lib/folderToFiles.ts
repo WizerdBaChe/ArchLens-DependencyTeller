@@ -60,7 +60,8 @@ async function collectFiles(
 
 /** Uses the File System Access API to let the user pick a local folder and read source files. */
 export async function folderToFiles(): Promise<FolderReadOutcome> {
-  const dirHandle = await window.showDirectoryPicker({ mode: "read" });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dirHandle: FileSystemDirectoryHandle = await (window as any).showDirectoryPicker({ mode: "read", startIn: "desktop" });
 
   const files: InputFile[] = [];
   const skipped: string[] = [];

@@ -32,9 +32,9 @@ export function InputPanel() {
   const [localNotice, setLocalNotice] = useState<string | null>(null);
   const [zipFile, setZipFile] = useState<File | null>(null);
   const [folderName, setFolderName] = useState<string | null>(null);
-  const [folderFiles, setFolderFiles] = useState<InputFile[] | null>(null);
   const [isReadingFolder, setIsReadingFolder] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderFilesRef = useRef<InputFile[] | null>(null);
   const folderPickerSupported = isFolderPickerSupported();
 
   const switchMode = useCallback((next: InputMode) => {
@@ -42,7 +42,7 @@ export function InputPanel() {
     setLocalNotice(null);
     if (next !== "folder") {
       setFolderName(null);
-      setFolderFiles(null);
+      folderFilesRef.current = null;
     }
     if (next !== "zip") {
       setZipFile(null);
@@ -76,8 +76,8 @@ export function InputPanel() {
     setIsReadingFolder(true);
     try {
       const { files, skipped, truncated, folderName: name } = await folderToFiles();
+      folderFilesRef.current = files;
       setFolderName(name);
-      setFolderFiles(files);
       if (!projectName || projectName === "my-project") {
         setProjectName(name);
       }
@@ -122,11 +122,12 @@ export function InputPanel() {
       }
       runAnalysis(projectName, files, alias);
     } else if (mode === "folder") {
-      if (!folderFiles || folderFiles.length === 0) {
+      const files = folderFilesRef.current;
+      if (!files || files.length === 0) {
         setLocalNotice("Select a folder first.");
         return;
       }
-      runAnalysis(projectName, folderFiles, alias);
+      runAnalysis(projectName, files, alias);
     } else {
       const { files, noMarkersFound } = parsePastedText(pasteText);
       if (noMarkersFound) {
@@ -139,7 +140,7 @@ export function InputPanel() {
       }
       runAnalysis(projectName, files, alias);
     }
-  }, [mode, zipFile, folderFiles, pasteText, aliasText, projectName, runAnalysis]);
+  }, [mode, zipFile, pasteText, aliasText, projectName, runAnalysis]);
 
   return (
     <div className="input-panel">

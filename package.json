@@ -12,6 +12,10 @@
     "dev": "npm run dev -w @archlens/web",
     "dev:web": "npm run dev -w @archlens/web"
   },
+  "devDependencies": {
+    "lightningcss": "^1.32.0",
+    "rolldown": "1.0.3"
+  },
   "engines": {
     "node": ">=18"
   }
