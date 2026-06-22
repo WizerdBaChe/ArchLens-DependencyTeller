@@ -2,20 +2,24 @@ import { useGraphStore } from "../store/useGraphStore";
 import { NodeDetailPanel } from "./NodeDetailPanel";
 import { CycleListPanel } from "./CycleListPanel";
 import { WarningListPanel } from "./WarningListPanel";
+import { useLocale } from "../i18n";
 import "./SidePanel.css";
 
-const TABS = [
-  { id: "node" as const, label: "Node" },
-  { id: "cycles" as const, label: "Cycles" },
-  { id: "warnings" as const, label: "Warnings" },
-];
+type TabId = "node" | "cycles" | "warnings";
 
 export function SidePanel() {
   const tab = useGraphStore((s) => s.sidePanelTab);
   const setTab = useGraphStore((s) => s.setSidePanelTab);
   const summary = useGraphStore((s) => s.summary);
+  const { t } = useLocale();
 
-  const countFor = (id: typeof TABS[number]["id"]) => {
+  const TABS: { id: TabId; label: string }[] = [
+    { id: "node", label: t.sidePanel.tabNode },
+    { id: "cycles", label: t.sidePanel.tabCycles },
+    { id: "warnings", label: t.sidePanel.tabWarnings },
+  ];
+
+  const countFor = (id: TabId) => {
     if (!summary) return undefined;
     if (id === "cycles") return summary.totalCycles;
     if (id === "warnings") return summary.totalWarnings;
@@ -23,19 +27,19 @@ export function SidePanel() {
   };
 
   return (
-    <aside className="side-panel" aria-label="Analysis details">
+    <aside className="side-panel" aria-label={t.sidePanel.ariaLabel}>
       <div className="side-panel__tabs" role="tablist">
-        {TABS.map((t) => {
-          const count = countFor(t.id);
+        {TABS.map((tabItem) => {
+          const count = countFor(tabItem.id);
           return (
             <button
-              key={t.id}
+              key={tabItem.id}
               role="tab"
-              aria-selected={tab === t.id}
-              className={`side-panel__tab ${tab === t.id ? "is-active" : ""}`}
-              onClick={() => setTab(t.id)}
+              aria-selected={tab === tabItem.id}
+              className={`side-panel__tab ${tab === tabItem.id ? "is-active" : ""}`}
+              onClick={() => setTab(tabItem.id)}
             >
-              {t.label}
+              {tabItem.label}
               {typeof count === "number" && <span className="side-panel__count">{count}</span>}
             </button>
           );

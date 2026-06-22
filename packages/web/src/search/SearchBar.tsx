@@ -1,10 +1,12 @@
 import { useGraphStore } from "../store/useGraphStore";
+import { useLocale } from "../i18n";
 import "./SearchBar.css";
 
 export function SearchBar() {
   const searchQuery = useGraphStore((s) => s.searchQuery);
   const setSearchQuery = useGraphStore((s) => s.setSearchQuery);
   const graph = useGraphStore((s) => s.graph);
+  const { t } = useLocale();
 
   if (!graph) return null;
 
@@ -18,15 +20,15 @@ export function SearchBar() {
         type="text"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Search files by path…"
-        aria-label="Search nodes by path"
+        placeholder={t.search.placeholder}
+        aria-label={t.search.ariaLabel}
       />
       {searchQuery && (
         <button
           type="button"
           className="search-bar__clear"
           onClick={() => setSearchQuery("")}
-          aria-label="Clear search"
+          aria-label={t.search.ariaClear}
         >
           ×
         </button>

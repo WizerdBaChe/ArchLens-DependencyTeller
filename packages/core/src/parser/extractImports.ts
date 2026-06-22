@@ -25,14 +25,17 @@ const SCRIPT_KIND_BY_LANGUAGE: Record<SupportedLanguage, ts.ScriptKind> = {
   tsx: ts.ScriptKind.TSX,
   js: ts.ScriptKind.JS,
   jsx: ts.ScriptKind.JSX,
+  // Vue SFC content is extracted and re-tagged as "ts" or "js" by extractVueScript
+  // before reaching this function, so this entry is a safety fallback only.
+  vue: ts.ScriptKind.JS,
 };
 
 export function inferLanguage(path: string): SupportedLanguage {
   const lower = path.toLowerCase();
   if (lower.endsWith(".tsx")) return "tsx";
-  if (lower.endsWith(".ts")) return "ts";
+  if (lower.endsWith(".ts") || lower.endsWith(".mts") || lower.endsWith(".cts")) return "ts";
   if (lower.endsWith(".jsx")) return "jsx";
-  return "js";
+  return "js"; // .js, .mjs, .cjs, and any unrecognised extension
 }
 
 /**

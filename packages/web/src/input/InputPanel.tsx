@@ -6,6 +6,7 @@ import { zipToFiles } from "../lib/zipToFiles";
 import { folderToFiles, isFolderPickerSupported } from "../lib/folderToFiles";
 import { parsePastedText } from "../lib/parsePastedText";
 import { parseAliasConfig } from "../lib/parseAliasConfig";
+import { useLocale } from "../i18n";
 import "./InputPanel.css";
 
 type InputMode = "zip" | "folder" | "paste";
@@ -22,6 +23,7 @@ export function InputPanel() {
   const runAnalysis = useGraphStore((s) => s.runAnalysis);
   const status = useGraphStore((s) => s.status);
   const storeError = useGraphStore((s) => s.error);
+  const { t } = useLocale();
 
   const [mode, setMode] = useState<InputMode>("zip");
   const [projectName, setProjectName] = useState("my-project");
@@ -51,7 +53,7 @@ export function InputPanel() {
 
   const handleFiles = useCallback((file: File) => {
     if (!file.name.toLowerCase().endsWith(".zip")) {
-      setLocalNotice("Only .zip files are supported in this mode.");
+      setLocalNotice(t.input.errorZipOnly);
       return;
     }
     setZipFile(file);
@@ -59,7 +61,7 @@ export function InputPanel() {
     if (!projectName || projectName === "my-project") {
       setProjectName(file.name.replace(/\.zip$/i, ""));
     }
-  }, [projectName]);
+  }, [projectName, t]);
 
   const onDrop = useCallback(
     (e: DragEvent<HTMLDivElement>) => {
@@ -82,20 +84,20 @@ export function InputPanel() {
         setProjectName(name);
       }
       if (files.length === 0) {
-        setLocalNotice("No .ts/.tsx/.js/.jsx files were found in that folder.");
+        setLocalNotice(t.input.errorNoFilesFolder);
       } else if (skipped.length > 0 || truncated) {
-        setLocalNotice(
-          `Found ${files.length} file(s). ${skipped.length > 0 ? `${skipped.length} oversized file(s) skipped. ` : ""}${truncated ? "File count limit reached — analysis covers the first files found." : ""}`
-        );
+        setLocalNotice(t.input.noticeFilesFound(files.length, skipped.length, truncated));
       }
     } catch (err) {
-      if (err instanceof Error && err.name !== "AbortError") {
-        setLocalNotice("Could not read the folder: " + err.message);
+      if (err instanceof Error && err.name === "SecurityError") {
+        setLocalNotice(t.input.errorHttpsRequired);
+      } else if (err instanceof Error && err.name !== "AbortError") {
+        setLocalNotice(t.input.errorFolderRead + err.message);
       }
     } finally {
       setIsReadingFolder(false);
     }
-  }, [projectName]);
+  }, [projectName, t]);
 
   const handleAnalyze = useCallback(async () => {
     setLocalNotice(null);
@@ -107,50 +109,45 @@ export function InputPanel() {
 
     if (mode === "zip") {
       if (!zipFile) {
-        setLocalNotice("Choose or drop a .zip file first.");
+        setLocalNotice(t.input.errorChooseZip);
         return;
       }
       const { files, skipped, truncated } = await zipToFiles(zipFile);
       if (files.length === 0) {
-        setLocalNotice("No .ts/.tsx/.js/.jsx files were found inside that archive.");
+        setLocalNotice(t.input.errorNoFilesArchive);
         return;
       }
       if (skipped.length > 0 || truncated) {
-        setLocalNotice(
-          `Analyzing ${files.length} files. ${skipped.length > 0 ? `${skipped.length} oversized file(s) skipped. ` : ""}${truncated ? "File count limit reached — analysis covers the first files found." : ""}`
-        );
+        setLocalNotice(t.input.noticeAnalyzing(files.length, skipped.length, truncated));
       }
       runAnalysis(projectName, files, alias);
     } else if (mode === "folder") {
       const files = folderFilesRef.current;
       if (!files || files.length === 0) {
-        setLocalNotice("Select a folder first.");
+        setLocalNotice(t.input.errorSelectFolder);
         return;
       }
       runAnalysis(projectName, files, alias);
     } else {
       const { files, noMarkersFound } = parsePastedText(pasteText);
       if (noMarkersFound) {
-        setLocalNotice('No "=== path ===" markers found — use the format shown in the placeholder.');
+        setLocalNotice(t.input.errorNoMarkers);
         return;
       }
       if (files.length === 0) {
-        setLocalNotice("Paste at least one file block before analyzing.");
+        setLocalNotice(t.input.errorNoPasteBlocks);
         return;
       }
       runAnalysis(projectName, files, alias);
     }
-  }, [mode, zipFile, pasteText, aliasText, projectName, runAnalysis]);
+  }, [mode, zipFile, pasteText, aliasText, projectName, runAnalysis, t]);
 
   return (
     <div className="input-panel">
       <div className="input-panel__intro">
-        <p className="input-panel__eyebrow">Dependency &amp; coupling analysis</p>
-        <h1 className="input-panel__title">See the structure your file tree hides.</h1>
-        <p className="input-panel__subtitle">
-          Upload a project archive or paste a few files. ArchLens parses imports
-          entirely in your browser — nothing is uploaded to a server.
-        </p>
+        <p className="input-panel__eyebrow">{t.input.eyebrow}</p>
+        <h1 className="input-panel__title">{t.input.title}</h1>
+        <p className="input-panel__subtitle">{t.input.subtitle}</p>
       </div>
 
       <div className="input-panel__card">
@@ -161,7 +158,7 @@ export function InputPanel() {
             className={`input-panel__tab ${mode === "zip" ? "is-active" : ""}`}
             onClick={() => switchMode("zip")}
           >
-            Upload .zip
+            {t.input.tabZip}
           </button>
           {folderPickerSupported && (
             <button
@@ -170,7 +167,7 @@ export function InputPanel() {
               className={`input-panel__tab ${mode === "folder" ? "is-active" : ""}`}
               onClick={() => switchMode("folder")}
             >
-              Browse folder
+              {t.input.tabFolder}
             </button>
           )}
           <button
@@ -179,17 +176,17 @@ export function InputPanel() {
             className={`input-panel__tab ${mode === "paste" ? "is-active" : ""}`}
             onClick={() => switchMode("paste")}
           >
-            Paste files
+            {t.input.tabPaste}
           </button>
         </div>
 
         <label className="input-panel__field">
-          <span>Project name</span>
+          <span>{t.input.fieldProjectName}</span>
           <input
             type="text"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
-            placeholder="my-project"
+            placeholder={t.input.projectNamePlaceholder}
           />
         </label>
 
@@ -223,8 +220,8 @@ export function InputPanel() {
               <p className="input-panel__dropzone-filename">{zipFile.name}</p>
             ) : (
               <>
-                <p>Drop a project .zip here, or click to browse</p>
-                <p className="input-panel__hint">node_modules / dist / build are skipped automatically</p>
+                <p>{t.input.dropzoneZipIdle}</p>
+                <p className="input-panel__hint">{t.input.dropzoneZipHint}</p>
               </>
             )}
           </div>
@@ -240,22 +237,22 @@ export function InputPanel() {
             aria-label="Pick a project folder"
           >
             {isReadingFolder ? (
-              <p>Reading folder…</p>
+              <p>{t.input.dropzoneFolderReading}</p>
             ) : folderName ? (
               <>
                 <p className="input-panel__dropzone-filename">📁 {folderName}</p>
-                <p className="input-panel__hint">Click to choose a different folder</p>
+                <p className="input-panel__hint">{t.input.dropzoneFolderChange}</p>
               </>
             ) : (
               <>
-                <p>Click to browse and select a project folder</p>
-                <p className="input-panel__hint">node_modules / dist / build / .git are skipped automatically</p>
+                <p>{t.input.dropzoneFolderIdle}</p>
+                <p className="input-panel__hint">{t.input.dropzoneFolderHint}</p>
               </>
             )}
           </div>
         ) : (
           <label className="input-panel__field">
-            <span>File blocks</span>
+            <span>{t.input.fieldFileBlocks}</span>
             <textarea
               value={pasteText}
               onChange={(e) => setPasteText(e.target.value)}
@@ -272,11 +269,11 @@ export function InputPanel() {
           onClick={() => setShowAlias((v) => !v)}
           aria-expanded={showAlias}
         >
-          {showAlias ? "Hide" : "Set"} path aliases (optional)
+          {showAlias ? t.input.aliasToggleHide : t.input.aliasToggleShow}
         </button>
         {showAlias && (
           <label className="input-panel__field">
-            <span>Alias config — JSON (tsconfig "paths"-style) or "key -&gt; target" lines</span>
+            <span>{t.input.fieldAliasLabel}</span>
             <textarea
               value={aliasText}
               onChange={(e) => setAliasText(e.target.value)}
@@ -299,7 +296,7 @@ export function InputPanel() {
           onClick={handleAnalyze}
           disabled={status === "analyzing" || isReadingFolder}
         >
-          {status === "analyzing" ? "Analyzing…" : "Analyze project"}
+          {status === "analyzing" ? t.input.submitAnalyzing : t.input.submitAnalyze}
         </button>
       </div>
     </div>

@@ -23,7 +23,7 @@ export interface InputFile {
   language?: SupportedLanguage;
 }
 
-export type SupportedLanguage = "ts" | "tsx" | "js" | "jsx";
+export type SupportedLanguage = "ts" | "tsx" | "js" | "jsx" | "vue";
 
 /** Alias map as authored by the user, e.g. { "@/*": "src/*" } (tsconfig-style). */
 export type AliasConfig = Record<string, string>;
@@ -33,8 +33,21 @@ export interface ProjectInput {
   files: InputFile[];
   /** tsconfig-style path aliases. Optional. */
   alias?: AliasConfig;
-  /** Glob-like prefixes/suffixes to exclude before parsing. Optional, MVP: simple substring/prefix match. */
+  /**
+   * Substring/prefix patterns to exclude before parsing.
+   * Supports `*` as a wildcard. Does NOT support `**` or `{a,b}` — for
+   * advanced glob matching, pre-filter files before passing them in.
+   * Example: `["src/generated/*", ".test."]`
+   */
+  excludePatterns?: string[];
+  /**
+   * When provided, only files matching at least one pattern are parsed.
+   * Same matching rules as `excludePatterns`.
+   */
+  includePatterns?: string[];
+  /** @deprecated Use `excludePatterns` instead. */
   excludeGlobs?: string[];
+  /** @deprecated Use `includePatterns` instead. */
   includeGlobs?: string[];
 }
 

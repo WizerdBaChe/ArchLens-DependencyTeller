@@ -2,6 +2,21 @@
   "name": "@archlens/core",
   "version": "0.1.0",
   "description": "Static dependency parser, graph model and coupling analyzer. No UI dependencies — safe to reuse from CLI, web worker, or editor extensions.",
+  "license": "CC-BY-ND-4.0",
+  "keywords": [
+    "dependency-graph",
+    "static-analysis",
+    "typescript",
+    "circular-dependencies",
+    "import-graph",
+    "vue",
+    "coupling",
+    "archlens"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NathanBaChe/ArchLens-DependencyTeller"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -11,6 +26,9 @@
       "default": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",

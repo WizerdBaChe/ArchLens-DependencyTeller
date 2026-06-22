@@ -5,6 +5,8 @@ import { SidePanel } from "./panels/SidePanel";
 import { SummaryCards } from "./panels/SummaryCards";
 import { SearchBar } from "./search/SearchBar";
 import { ExportMenu } from "./export/ExportMenu";
+import { useLocale } from "./i18n";
+import { LanguageSwitcher } from "./i18n/LanguageSwitcher";
 import "./App.css";
 
 function Logo() {
@@ -27,11 +29,12 @@ export default function App() {
   const projectName = useGraphStore((s) => s.projectName);
   const reset = useGraphStore((s) => s.reset);
   const hasGraph = status === "ready";
+  const { t } = useLocale();
 
   return (
     <div className="app-shell">
       <header className="app-topbar">
-        <button className="app-logo-button" onClick={reset} title="Start a new analysis">
+        <button className="app-logo-button" onClick={reset} title={t.app.logoTitle}>
           <Logo />
         </button>
 
@@ -43,10 +46,13 @@ export default function App() {
             <SummaryCards />
             <ExportMenu />
             <button className="app-new-analysis" onClick={reset}>
-              New analysis
+              {t.app.newAnalysis}
             </button>
           </>
         )}
+
+        {!hasGraph && <div className="app-topbar__spacer" />}
+        <LanguageSwitcher />
       </header>
 
       <main className={`app-body ${hasGraph ? "" : "app-body--no-side"}`}>

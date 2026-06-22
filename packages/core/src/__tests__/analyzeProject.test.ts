@@ -88,4 +88,76 @@ describe("analyzeProject (end-to-end)", () => {
     if (result.ok) return;
     expect(result.error.code).toBe("NO_SUPPORTED_FILES");
   });
+
+  describe("Vue SFC support", () => {
+    const vueFiles = [
+      {
+        path: "src/App.vue",
+        content: `
+<template><div><MyButton /></div></template>
+<script setup lang="ts">
+import MyButton from './components/MyButton.vue'
+import { useCounter } from './composables/useCounter'
+</script>
+`,
+      },
+      {
+        path: "src/components/MyButton.vue",
+        content: `
+<template><button>Click</button></template>
+<script setup lang="ts">
+import { defineEmits } from 'vue'
+const emit = defineEmits(['click'])
+</script>
+`,
+      },
+      {
+        path: "src/composables/useCounter.ts",
+        content: `
+import { ref } from 'vue'
+export function useCounter() { return ref(0) }
+`,
+      },
+    ];
+
+    it("resolves .vue-to-.vue and .vue-to-.ts edges correctly", () => {
+      const result = analyzeProject({ projectName: "vue-fixture", files: vueFiles });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+
+      const { graph } = result;
+      expect(graph.project.fileCount).toBe(3);
+      expect(graph.nodes).toHaveLength(3);
+
+      const appToButton = graph.edges.find(
+        (e) => e.from === "src/App.vue" && e.to === "src/components/MyButton.vue"
+      );
+      expect(appToButton).toBeDefined();
+
+      const appToCounter = graph.edges.find(
+        (e) => e.from === "src/App.vue" && e.to === "src/composables/useCounter.ts"
+      );
+      expect(appToCounter).toBeDefined();
+    });
+
+    it("does not produce edges for external vue imports (e.g. 'vue')", () => {
+      const result = analyzeProject({ projectName: "vue-fixture", files: vueFiles });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+
+      const externalVueEdge = result.graph.edges.find((e) => e.to === "vue");
+      expect(externalVueEdge).toBeUndefined();
+    });
+
+    it("treats a template-only .vue file as a valid (isolated) node", () => {
+      const result = analyzeProject({
+        projectName: "vue-fixture",
+        files: [{ path: "src/Static.vue", content: "<template><p>Hello</p></template>" }],
+      });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.graph.nodes).toHaveLength(1);
+      expect(result.graph.edges).toHaveLength(0);
+    });
+  });
 });

@@ -14,7 +14,7 @@ export type ResolutionOutcome =
   | { status: "external"; packageName: string }
   | { status: "unresolved" };
 
-const RESOLVABLE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"] as const;
+const RESOLVABLE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs", ".vue"] as const;
 const INDEX_FILES = RESOLVABLE_EXTENSIONS.map((ext) => `index${ext}`);
 
 /** Normalizes "./a/../b" and backslashes into a clean forward-slash path. */

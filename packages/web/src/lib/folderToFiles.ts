@@ -1,6 +1,6 @@
 import type { InputFile } from "@archlens/core";
 
-const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"];
+const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs", ".vue"];
 const MAX_FILES = 3000;
 const MAX_FILE_SIZE_BYTES = 1.5 * 1024 * 1024;
 

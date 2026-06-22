@@ -1,8 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
-// https://vite.dev/config/
-export default defineConfig({
-  base: '/ArchLens-DependencyTeller/',
-  plugins: [react()],
-})
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/ArchLens-DependencyTeller/' : '/',
+  plugins: [
+    react(),
+    ...(command === 'serve' ? [basicSsl()] : []),
+  ],
+}))

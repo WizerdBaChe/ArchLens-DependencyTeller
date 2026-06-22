@@ -7,6 +7,7 @@
  * separate module so each piece can be tested and replaced independently.
  */
 import { extractImports, inferLanguage } from "./parser/extractImports.js";
+import { extractVueScript } from "./parser/extractVueScript.js";
 import { isBareSpecifier, resolveSpecifier } from "./resolver/resolveSpecifier.js";
 import type {
   AliasConfig,
@@ -60,10 +61,15 @@ export function buildGraph(files: InputFile[], alias: AliasConfig | undefined): 
   );
 
   for (const file of files) {
-    const language = file.language ?? inferLanguage(file.path);
+    const isVue = file.language === "vue" || file.path.toLowerCase().endsWith(".vue");
+    const vueScript = isVue ? extractVueScript(file.content) : null;
+    const contentToAnalyze = vueScript ? vueScript.code : file.content;
+    const language = file.language === "vue"
+      ? (vueScript?.language ?? "js")
+      : (file.language ?? (vueScript ? vueScript.language : inferLanguage(file.path)));
     languages.add(language);
 
-    const { imports, parseError } = extractImports(file.path, file.content, language);
+    const { imports, parseError } = extractImports(file.path, contentToAnalyze, language);
     if (parseError) {
       warnings.push({
         code: "PARSE_ERROR",

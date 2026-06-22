@@ -1,5 +1,6 @@
 import { Handle, Position } from "reactflow";
 import type { NodeProps } from "reactflow";
+import { useLocale } from "../../i18n";
 import "./DependencyNode.css";
 
 export interface DependencyNodeData {
@@ -16,6 +17,7 @@ export interface DependencyNodeData {
 
 export function DependencyNode({ data, selected }: NodeProps<DependencyNodeData>) {
   const role = data.isCircular ? "circular" : data.isEntry ? "entry" : data.isLeaf ? "leaf" : "default";
+  const { t } = useLocale();
 
   return (
     <div
@@ -31,8 +33,8 @@ export function DependencyNode({ data, selected }: NodeProps<DependencyNodeData>
       <div className="dep-node__group">{data.group || "/"}</div>
       <div className="dep-node__label" title={data.label}>{data.label}</div>
       <div className="dep-node__metrics">
-        <span title="Fan-in (depended on by)">←{data.fanin}</span>
-        <span title="Fan-out (depends on)">{data.fanout}→</span>
+        <span title={t.depNode.titleFanIn}>←{data.fanin}</span>
+        <span title={t.depNode.titleFanOut}>{data.fanout}→</span>
       </div>
       <Handle type="source" position={Position.Right} className="dep-node__port" />
     </div>

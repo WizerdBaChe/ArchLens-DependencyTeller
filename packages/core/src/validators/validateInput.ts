@@ -13,18 +13,28 @@ export interface ValidationOutcome {
   warnings: GraphWarning[];
 }
 
-const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"];
+const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs", ".vue"];
 
-function matchesGlob(path: string, glob: string): boolean {
-  // MVP-level matching: supports "*" wildcard and plain prefix/substring.
-  const pattern = glob.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
-  return new RegExp(`^${pattern}$`).test(path) || path.includes(glob.replace(/\*/g, ""));
+/** Matches a path against a pattern that supports `*` as a wildcard. */
+function matchesPattern(path: string, pattern: string): boolean {
+  const regexSource = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
+  return new RegExp(`^${regexSource}$`).test(path) || path.includes(pattern.replace(/\*/g, ""));
 }
 
 export function validateInput(input: ProjectInput): ValidationOutcome {
   const warnings: GraphWarning[] = [];
   const seen = new Set<string>();
   const filesToParse: ProjectInput["files"] = [];
+
+  // Merge deprecated aliases so callers using the old field names still work.
+  const excludePatterns = [
+    ...(input.excludePatterns ?? []),
+    ...(input.excludeGlobs ?? []),
+  ];
+  const includePatterns = [
+    ...(input.includePatterns ?? []),
+    ...(input.includeGlobs ?? []),
+  ];
 
   for (const file of input.files) {
     if (seen.has(file.path)) {
@@ -41,8 +51,8 @@ export function validateInput(input: ProjectInput): ValidationOutcome {
     const isSupported = SUPPORTED_EXTENSIONS.some((ext) => file.path.toLowerCase().endsWith(ext));
     if (!isSupported) continue;
 
-    if (input.excludeGlobs?.some((g) => matchesGlob(file.path, g))) continue;
-    if (input.includeGlobs?.length && !input.includeGlobs.some((g) => matchesGlob(file.path, g))) continue;
+    if (excludePatterns.some((p) => matchesPattern(file.path, p))) continue;
+    if (includePatterns.length > 0 && !includePatterns.some((p) => matchesPattern(file.path, p))) continue;
 
     filesToParse.push(file);
   }

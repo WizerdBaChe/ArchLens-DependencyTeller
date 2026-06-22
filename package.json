@@ -9,13 +9,13 @@
   "scripts": {
     "build": "npm run build -w @archlens/core && npm run build -w @archlens/web",
     "test": "npm run test -w @archlens/core",
-    "dev": "npm run dev -w @archlens/web",
-    "dev:web": "npm run dev -w @archlens/web"
+    "dev": "npm run dev -w @archlens/web"
   },
   "devDependencies": {
     "lightningcss": "^1.32.0",
     "rolldown": "1.0.3"
   },
+  "license": "CC-BY-ND-4.0",
   "engines": {
     "node": ">=18"
   }

@@ -42,7 +42,7 @@ export function analyzeProject(input: ProjectInput): AnalysisResult {
         ok: false,
         error: {
           code: "NO_SUPPORTED_FILES",
-          message: "No .ts/.tsx/.js/.jsx files were found among the provided input.",
+          message: "No supported JS/TS/Vue files (.ts, .tsx, .js, .jsx, .mts, .cts, .mjs, .cjs, .vue) were found among the provided input.",
           details: validationWarnings,
         },
       };
@@ -103,11 +103,22 @@ export function analyzeProject(input: ProjectInput): AnalysisResult {
   }
 }
 
-/** Convenience re-export so the UI doesn't need to reach into analyzer/ directly. */
-export function summarize(graph: NormalizedGraph): AnalysisSummary {
-  return buildSummary(graph.nodes, graph.edges.length, graph.cycles.length, graph.warnings.length);
+/**
+ * Derives project-level summary statistics from a normalized graph.
+ * @param topN How many nodes to include in the top fan-in / fan-out rankings.
+ *             Defaults to 5. Pass a larger value for CLI-style full rankings.
+ */
+export function summarize(graph: NormalizedGraph, topN = 5): AnalysisSummary {
+  return buildSummary(graph.nodes, graph.edges.length, graph.cycles.length, graph.warnings.length, topN);
 }
 
+/**
+ * Returns the direct (1-hop) upstream and downstream neighbours of a node.
+ *
+ * **Scope:** only direct edges are traversed — if you need transitive impact
+ * across multiple hops, collect results recursively or filter `graph.edges`
+ * directly.
+ */
 export function traceNodeImpact(graph: NormalizedGraph, nodeId: string): ImpactTrace {
   return traceImpact(nodeId, graph.edges);
 }
