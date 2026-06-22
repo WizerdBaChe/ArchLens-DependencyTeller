@@ -9,6 +9,7 @@
   "scripts": {
     "build": "npm run build -w @archlens/core && npm run build -w @archlens/web",
     "test": "npm run test -w @archlens/core",
+    "dev": "npm run dev -w @archlens/web",
     "dev:web": "npm run dev -w @archlens/web"
   },
   "engines": {
