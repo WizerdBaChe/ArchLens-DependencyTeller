@@ -46,6 +46,7 @@
   font-size: var(--fs-xs);
   font-weight: 500;
   white-space: nowrap;
+  min-width: 104px;
 }
 
 .app-new-analysis:hover {

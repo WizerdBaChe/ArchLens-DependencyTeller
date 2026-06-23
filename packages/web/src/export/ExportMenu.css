@@ -11,6 +11,8 @@
   padding: var(--space-2) var(--space-3);
   font-size: var(--fs-xs);
   font-weight: 500;
+  white-space: nowrap;
+  min-width: 96px;
 }
 
 .export-menu button:hover {
