@@ -58,9 +58,22 @@ export function analyzeProject(input: ProjectInput): AnalysisResult {
     const { circularNodeIds, circularEdgeKeys } = markCircularMembers(cycles);
     const { fanin, fanout } = computeFanCounts(nodeIds, edges);
 
+    // Tier lookup so an edge can be marked as crossing the frontend/backend
+    // boundary. Only a concrete frontend↔backend pair counts — edges touching
+    // "shared"/"unknown" are not a meaningful boundary crossing.
+    const tierById = new Map(nodes.map((n) => [n.id, n.tier]));
+    const isCrossTier = (from: string, to: string): boolean => {
+      const a = tierById.get(from);
+      const b = tierById.get(to);
+      return (
+        (a === "frontend" && b === "backend") || (a === "backend" && b === "frontend")
+      );
+    };
+
     const finalEdges: GraphEdge[] = edges.map((edge) => ({
       ...edge,
       isCircular: circularEdgeKeys.has(`${edge.from}->${edge.to}`),
+      crossTier: isCrossTier(edge.from, edge.to),
     }));
 
     const finalNodes = nodes.map((node) => {

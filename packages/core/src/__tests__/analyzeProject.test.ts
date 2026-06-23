@@ -224,6 +224,44 @@ from .helpers import format_name
       expect(tierOf("web/App.tsx")).toBe("frontend"); // react / web ext
     });
 
+    it("flags an edge crossing the frontend↔backend boundary as crossTier", () => {
+      const crossFiles = [
+        {
+          path: "web/App.tsx",
+          content: `import React from "react";\nimport { handler } from "../server/route";\nexport const App = () => handler;`,
+        },
+        {
+          path: "server/route.ts",
+          content: `import express from "express";\nexport const handler = express();`,
+        },
+        {
+          path: "web/util.ts",
+          content: `import React from "react";\nexport const x = React;`,
+        },
+      ];
+      const result = analyzeProject({ projectName: "cross", files: crossFiles });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+
+      // frontend (App.tsx) -> backend (route.ts via express) crosses the boundary.
+      const crossEdge = result.graph.edges.find(
+        (e) => e.from === "web/App.tsx" && e.to === "server/route.ts"
+      );
+      expect(crossEdge?.crossTier).toBe(true);
+    });
+
+    it("does not flag a same-tier edge as crossTier", () => {
+      const result = analyzeProject({ projectName: "mixed", files: mixedFiles });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+
+      // server/app.py -> server/db.py is backend -> backend: not a crossing.
+      const sameTier = result.graph.edges.find(
+        (e) => e.from === "server/app.py" && e.to === "server/db.py"
+      );
+      expect(sameTier?.crossTier).toBe(false);
+    });
+
     it("warns when a relative python import points nowhere", () => {
       const result = analyzeProject({
         projectName: "bad-rel",
