@@ -73,6 +73,10 @@ export interface Locale {
     downstream: (count: number) => string;
     nothingImports: string;
     importsNothing: string;
+    depthLabel: string;
+    depthAll: string;
+    depthAria: string;
+    hop: (depth: number) => string;
   };
   cycleList: {
     empty: string;
@@ -90,8 +94,12 @@ export interface Locale {
   exportMenu: {
     exportJson: string;
     exportCsv: string;
+    exportPng: string;
+    exportSvg: string;
     titleJson: string;
     titleCsv: string;
+    titlePng: string;
+    titleSvg: string;
   };
   depNode: {
     titleFanIn: string;
@@ -112,6 +120,7 @@ export interface Locale {
     tierBackend: string;
     tierShared: string;
     tierUnknown: string;
+    crossTierEdge: string;
   };
   langSwitcher: {
     ariaLabel: string;
@@ -212,6 +221,10 @@ const enUS: Locale = {
     downstream: (count) => `Downstream — this depends on (${count})`,
     nothingImports: "Nothing imports this file.",
     importsNothing: "This file imports nothing internal.",
+    depthLabel: "Hops",
+    depthAll: "All",
+    depthAria: "Impact trace depth (hops)",
+    hop: (depth) => ` · ${depth} hop${depth === 1 ? "" : "s"}`,
   },
   cycleList: {
     empty: "No circular dependencies detected. ✓",
@@ -234,8 +247,12 @@ const enUS: Locale = {
   exportMenu: {
     exportJson: "Export JSON",
     exportCsv: "Export CSV",
+    exportPng: "Export PNG",
+    exportSvg: "Export SVG",
     titleJson: "Export full graph as JSON",
     titleCsv: "Export node/edge summary as CSV",
+    titlePng: "Export the graph image as PNG",
+    titleSvg: "Export the graph image as SVG (vector)",
   },
   depNode: {
     titleFanIn: "Fan-in (depended on by)",
@@ -256,6 +273,7 @@ const enUS: Locale = {
     tierBackend: "Backend",
     tierShared: "Shared",
     tierUnknown: "Unclassified (dashed)",
+    crossTierEdge: "Cross-tier edge (frontend ↔ backend)",
   },
   langSwitcher: {
     ariaLabel: "Switch language",

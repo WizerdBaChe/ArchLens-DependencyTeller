@@ -127,3 +127,13 @@
   border-style: dashed;
   border-radius: var(--radius-sm);
 }
+
+/* A short dashed line standing in for the cross-tier edge style on the canvas. */
+.tier-legend__edge {
+  display: inline-block;
+  width: 18px;
+  height: 0;
+  border: none;
+  border-top: 2px dashed var(--color-accent-magenta);
+  flex: none;
+}

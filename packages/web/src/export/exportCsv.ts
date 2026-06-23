@@ -14,9 +14,9 @@ export function downloadGraphAsCsv(graph: NormalizedGraph): void {
       .join(",")
   );
 
-  const edgeHeader = ["id", "from", "to", "kind", "isCircular"];
+  const edgeHeader = ["id", "from", "to", "kind", "isCircular", "crossTier"];
   const edgeRows = graph.edges.map((e) =>
-    [e.id, e.from, e.to, e.kind, e.isCircular].map(csvEscape).join(",")
+    [e.id, e.from, e.to, e.kind, e.isCircular, e.crossTier ?? false].map(csvEscape).join(",")
   );
 
   const csv = [

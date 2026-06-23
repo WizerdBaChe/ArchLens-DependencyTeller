@@ -156,6 +156,48 @@ export function selectImpactTrace(state: GraphState): ImpactTrace | null {
   return traceNodeImpact(state.graph, state.selectedNodeId);
 }
 
+/**
+ * One reachable node found while walking the dependency graph, tagged with the
+ * hop distance from the selected node. Distance 1 == a direct neighbour.
+ */
+export interface ReachableNode {
+  id: string;
+  depth: number;
+}
+
+/**
+ * Transitive (multi-hop) impact in one direction. BFS over the real edges from
+ * `startId`, returning every reachable node tagged with its hop distance, up to
+ * `maxDepth` hops (depth 1 == direct neighbour). This is the web-side BFS the
+ * core's API.md points to — core stays 1-hop only; the multi-hop view is a
+ * derived concern that lives here. The start node is never included.
+ *
+ * @param direction "downstream" follows from→to (what this depends on);
+ *                  "upstream" follows to→from (who depends on this).
+ */
+export function reachableImpact(
+  edges: NormalizedGraph["edges"],
+  startId: string,
+  direction: "downstream" | "upstream",
+  maxDepth: number
+): ReachableNode[] {
+  const found = new Map<string, number>();
+  let frontier = [startId];
+  for (let depth = 1; depth <= maxDepth && frontier.length > 0; depth++) {
+    const next: string[] = [];
+    for (const e of edges) {
+      const from = direction === "downstream" ? e.from : e.to;
+      const to = direction === "downstream" ? e.to : e.from;
+      if (!frontier.includes(from)) continue;
+      if (to === startId || found.has(to)) continue; // skip start + already seen (shortest hop wins)
+      found.set(to, depth);
+      next.push(to);
+    }
+    frontier = next;
+  }
+  return [...found].map(([id, depth]) => ({ id, depth })).sort((a, b) => a.depth - b.depth);
+}
+
 export function selectFilteredNodeIds(state: GraphState): Set<string> | null {
   if (!state.graph || !state.searchQuery.trim()) return null;
   const q = state.searchQuery.trim().toLowerCase();

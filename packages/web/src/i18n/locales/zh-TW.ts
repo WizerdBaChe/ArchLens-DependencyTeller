@@ -97,6 +97,10 @@ const zhTW: Locale = {
     downstream: (count: number) => `下游 — 此節點依賴的檔案（${count}）`,
     nothingImports: "沒有其他檔案 import 此檔案。",
     importsNothing: "此檔案未 import 任何內部模組。",
+    depthLabel: "層數",
+    depthAll: "全部",
+    depthAria: "影響追蹤深度（層數）",
+    hop: (depth: number) => ` · 第 ${depth} 層`,
   },
 
   // Cycle list panel
@@ -127,8 +131,12 @@ const zhTW: Locale = {
   exportMenu: {
     exportJson: "匯出 JSON",
     exportCsv: "匯出 CSV",
+    exportPng: "匯出 PNG",
+    exportSvg: "匯出 SVG",
     titleJson: "將完整圖表匯出為 JSON",
     titleCsv: "將節點／邊摘要匯出為 CSV",
+    titlePng: "將圖表畫面匯出為 PNG 圖片",
+    titleSvg: "將圖表畫面匯出為 SVG 向量圖",
   },
 
   // Dependency node tooltips
@@ -155,6 +163,7 @@ const zhTW: Locale = {
     tierBackend: "後端",
     tierShared: "共用",
     tierUnknown: "未分類（虛線）",
+    crossTierEdge: "跨層級邊（前端 ↔ 後端）",
   },
 
   // Language switcher
