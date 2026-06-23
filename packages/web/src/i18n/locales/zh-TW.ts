@@ -38,9 +38,9 @@ const zhTW: Locale = {
     // Validation / notices
     errorZipOnly: "此模式僅支援 .zip 檔案。",
     errorNoFilesFolder:
-      "在該資料夾中找不到支援的 JS/TS/Vue 檔案（.ts、.tsx、.js、.jsx、.mts、.cts、.mjs、.cjs、.vue）。",
+      "在該資料夾中找不到支援的原始碼檔案（.ts、.tsx、.js、.jsx、.mts、.cts、.mjs、.cjs、.vue、.py、.pyi）。",
     errorNoFilesArchive:
-      "在該壓縮檔中找不到支援的 JS/TS/Vue 檔案（.ts、.tsx、.js、.jsx、.mts、.cts、.mjs、.cjs、.vue）。",
+      "在該壓縮檔中找不到支援的原始碼檔案（.ts、.tsx、.js、.jsx、.mts、.cts、.mjs、.cjs、.vue、.py、.pyi）。",
     errorHttpsRequired:
       "存取資料夾需要 HTTPS。請使用已部署的應用程式，或以 HTTPS 模式啟動開發伺服器（npm run dev）。",
     errorFolderRead: "無法讀取資料夾：",
@@ -84,6 +84,15 @@ const zhTW: Locale = {
     roleEntry: "入口點",
     roleLeaf: "末端節點",
     roleInternal: "內部節點",
+    tier: "層級",
+    tierFrontend: "前端",
+    tierBackend: "後端",
+    tierShared: "共用",
+    tierUnknown: "未分類",
+    tierReasonFramework: (evidence: string) => `偵測到 import ${evidence}`,
+    tierReasonExtension: "依副檔名判定",
+    tierReasonUserOverride: "手動指定",
+    tierReasonUnknown: "無判定依據 — 可手動分類",
     upstream: (count: number) => `上游 — 依賴此節點的檔案（${count}）`,
     downstream: (count: number) => `下游 — 此節點依賴的檔案（${count}）`,
     nothingImports: "沒有其他檔案 import 此檔案。",
@@ -128,9 +137,41 @@ const zhTW: Locale = {
     titleFanOut: "扇出（依賴其他模組數）",
   },
 
+  // Tier filter toolbar
+  tierFilter: {
+    label: "層級",
+    all: "全部",
+    frontend: "前端",
+    backend: "後端",
+    ariaLabel: "依架構層級篩選",
+  },
+
+  // Graph legend
+  legend: {
+    title: "圖例",
+    shapeAxis: "形狀／底色 = 層級",
+    borderAxis: "邊框 = 角色（入口／末端／循環）",
+    tierFrontend: "前端",
+    tierBackend: "後端",
+    tierShared: "共用",
+    tierUnknown: "未分類（虛線）",
+  },
+
   // Language switcher
   langSwitcher: {
     ariaLabel: "切換語言",
+  },
+  collapse: {
+    collapseAll: "全部摺疊",
+    expandAll: "全部展開",
+    collapseAllHint: "將每個目錄摺疊成單一節點（總覽）",
+    expandAllHint: "將每個目錄展開回個別檔案",
+    bodyHint: "點選以高亮此目錄的依賴關係",
+    expandAria: "展開目錄",
+    collapseGroupAria: "摺疊此目錄",
+    collapseGroupHint: (group) => `將 ${group} 摺疊成單一節點`,
+    ariaLabel: "摺疊目錄",
+    memberCount: (count) => `${count} 個檔案`,
   },
 };
 

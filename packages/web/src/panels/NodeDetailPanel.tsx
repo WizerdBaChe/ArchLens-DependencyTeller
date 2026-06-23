@@ -24,6 +24,22 @@ export function NodeDetailPanel() {
     ? t.nodeDetail.roleLeaf
     : t.nodeDetail.roleInternal;
 
+  const tierLabel = {
+    frontend: t.nodeDetail.tierFrontend,
+    backend: t.nodeDetail.tierBackend,
+    shared: t.nodeDetail.tierShared,
+    unknown: t.nodeDetail.tierUnknown,
+  }[node.tier];
+
+  const tierReasonText =
+    node.tierReason === "framework-import"
+      ? t.nodeDetail.tierReasonFramework(node.tierEvidence ?? "")
+      : node.tierReason === "extension-default"
+      ? t.nodeDetail.tierReasonExtension
+      : node.tierReason === "user-override"
+      ? t.nodeDetail.tierReasonUserOverride
+      : t.nodeDetail.tierReasonUnknown;
+
   return (
     <div className="node-detail">
       <div className="node-detail__header">
@@ -46,6 +62,13 @@ export function NodeDetailPanel() {
           <dd>{roleLabel}</dd>
         </div>
       </dl>
+
+      {/* Tier (architectural layer) + why it was inferred — keeps the inference
+          transparent. Reserved spot for a future manual-override control. */}
+      <div className={`node-detail__tier node-detail__tier--${node.tier}`}>
+        <span className="node-detail__tier-badge">{t.nodeDetail.tier}: {tierLabel}</span>
+        <span className="node-detail__tier-reason">{tierReasonText}</span>
+      </div>
 
       <section className="node-detail__section">
         <h4>{t.nodeDetail.upstream(trace.upstream.length)}</h4>
