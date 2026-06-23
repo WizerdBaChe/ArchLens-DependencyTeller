@@ -138,3 +138,40 @@
   color: var(--color-text-tertiary);
   margin: 0;
 }
+
+/* Impact-trace depth selector — a compact segmented control. */
+.node-detail__depth {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.node-detail__depth-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-tertiary);
+  font-weight: 600;
+}
+
+.node-detail__depth-btn {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-xs);
+  font-family: var(--font-mono);
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.node-detail__depth-btn.is-active {
+  border-color: var(--color-accent-cyan);
+  color: var(--color-accent-cyan);
+}
+
+/* Hop-distance badge appended to a node in a multi-hop trace. */
+.node-detail__hop {
+  color: var(--color-text-tertiary);
+  font-size: var(--fs-xs);
+}

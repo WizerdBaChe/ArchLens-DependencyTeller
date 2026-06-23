@@ -1,12 +1,39 @@
-import { useGraphStore, selectSelectedNode, selectImpactTrace } from "../store/useGraphStore";
+import { useMemo, useState } from "react";
+import {
+  useGraphStore,
+  selectSelectedNode,
+  selectImpactTrace,
+  reachableImpact,
+} from "../store/useGraphStore";
 import { useLocale } from "../i18n";
 import "./NodeDetailPanel.css";
+
+/** Hop-depth options for the impact trace. 1 = direct neighbours only (default). */
+const DEPTH_OPTIONS = [1, 2, 3] as const;
+/** A large cap standing in for "all reachable" without an unbounded walk. */
+const DEPTH_ALL = 99;
 
 export function NodeDetailPanel() {
   const node = useGraphStore(selectSelectedNode);
   const trace = useGraphStore(selectImpactTrace);
+  const edges = useGraphStore((s) => s.graph?.edges ?? null);
   const selectNode = useGraphStore((s) => s.selectNode);
   const { t } = useLocale();
+
+  // Impact trace depth. 1 (direct only) keeps the original behaviour; higher
+  // values reveal transitive impact. Resets implicitly as the panel re-renders
+  // per selection because depth is keyed below to the selected node.
+  const [depth, setDepth] = useState<number>(1);
+  const selectedId = node?.id ?? null;
+
+  const upstreamReach = useMemo(
+    () => (edges && selectedId ? reachableImpact(edges, selectedId, "upstream", depth) : []),
+    [edges, selectedId, depth]
+  );
+  const downstreamReach = useMemo(
+    () => (edges && selectedId ? reachableImpact(edges, selectedId, "downstream", depth) : []),
+    [edges, selectedId, depth]
+  );
 
   if (!node || !trace) {
     return (
@@ -70,15 +97,43 @@ export function NodeDetailPanel() {
         <span className="node-detail__tier-reason">{tierReasonText}</span>
       </div>
 
+      {/* Impact trace depth. 1 = direct neighbours (default); higher values walk
+          transitively so "what does changing this file reach" is answerable. */}
+      <div className="node-detail__depth" role="group" aria-label={t.nodeDetail.depthAria}>
+        <span className="node-detail__depth-label">{t.nodeDetail.depthLabel}</span>
+        {DEPTH_OPTIONS.map((d) => (
+          <button
+            key={d}
+            type="button"
+            className={`node-detail__depth-btn ${depth === d ? "is-active" : ""}`}
+            onClick={() => setDepth(d)}
+            aria-pressed={depth === d}
+          >
+            {d}
+          </button>
+        ))}
+        <button
+          type="button"
+          className={`node-detail__depth-btn ${depth === DEPTH_ALL ? "is-active" : ""}`}
+          onClick={() => setDepth(DEPTH_ALL)}
+          aria-pressed={depth === DEPTH_ALL}
+        >
+          {t.nodeDetail.depthAll}
+        </button>
+      </div>
+
       <section className="node-detail__section">
-        <h4>{t.nodeDetail.upstream(trace.upstream.length)}</h4>
-        {trace.upstream.length === 0 ? (
+        <h4>{t.nodeDetail.upstream(upstreamReach.length)}</h4>
+        {upstreamReach.length === 0 ? (
           <p className="node-detail__empty-list">{t.nodeDetail.nothingImports}</p>
         ) : (
           <ul>
-            {trace.upstream.map((id) => (
+            {upstreamReach.map(({ id, depth: hop }) => (
               <li key={id}>
-                <button type="button" onClick={() => selectNode(id)}>{id}</button>
+                <button type="button" onClick={() => selectNode(id)}>
+                  {id}
+                  {depth !== 1 && <span className="node-detail__hop">{t.nodeDetail.hop(hop)}</span>}
+                </button>
               </li>
             ))}
           </ul>
@@ -86,14 +141,17 @@ export function NodeDetailPanel() {
       </section>
 
       <section className="node-detail__section">
-        <h4>{t.nodeDetail.downstream(trace.downstream.length)}</h4>
-        {trace.downstream.length === 0 ? (
+        <h4>{t.nodeDetail.downstream(downstreamReach.length)}</h4>
+        {downstreamReach.length === 0 ? (
           <p className="node-detail__empty-list">{t.nodeDetail.importsNothing}</p>
         ) : (
           <ul>
-            {trace.downstream.map((id) => (
+            {downstreamReach.map(({ id, depth: hop }) => (
               <li key={id}>
-                <button type="button" onClick={() => selectNode(id)}>{id}</button>
+                <button type="button" onClick={() => selectNode(id)}>
+                  {id}
+                  {depth !== 1 && <span className="node-detail__hop">{t.nodeDetail.hop(hop)}</span>}
+                </button>
               </li>
             ))}
           </ul>
