@@ -160,4 +160,79 @@ export function useCounter() { return ref(0) }
       expect(result.graph.edges).toHaveLength(0);
     });
   });
+
+  describe("Python + mixed-tier support", () => {
+    const mixedFiles = [
+      {
+        path: "server/app.py",
+        content: `
+import flask
+from .db import get_user
+from .helpers import format_name
+`,
+      },
+      {
+        path: "server/db.py",
+        content: `import sqlite3\ndef get_user(): return None`,
+      },
+      {
+        path: "server/helpers.py",
+        content: `def format_name(n): return n`,
+      },
+      {
+        path: "gui/main.py",
+        content: `from PySide6.QtWidgets import QApplication\nimport sys`,
+      },
+      {
+        path: "web/App.tsx",
+        content: `import React from "react";\nexport const App = () => null;`,
+      },
+    ];
+
+    it("parses .py files and resolves relative imports into edges", () => {
+      const result = analyzeProject({ projectName: "mixed", files: mixedFiles });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+
+      const appToDb = result.graph.edges.find(
+        (e) => e.from === "server/app.py" && e.to === "server/db.py"
+      );
+      const appToHelpers = result.graph.edges.find(
+        (e) => e.from === "server/app.py" && e.to === "server/helpers.py"
+      );
+      expect(appToDb).toBeDefined();
+      expect(appToHelpers).toBeDefined();
+    });
+
+    it("does not warn about external/stdlib python imports (flask, sys, sqlite3)", () => {
+      const result = analyzeProject({ projectName: "mixed", files: mixedFiles });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+
+      expect(result.graph.warnings.some((w) => w.code === "UNRESOLVED_IMPORT")).toBe(false);
+    });
+
+    it("infers tiers: flask=backend, PySide6=frontend, plain .py=backend, .tsx=frontend", () => {
+      const result = analyzeProject({ projectName: "mixed", files: mixedFiles });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+
+      const tierOf = (id: string) => result.graph.nodes.find((n) => n.id === id)?.tier;
+      expect(tierOf("server/app.py")).toBe("backend"); // flask override
+      expect(tierOf("gui/main.py")).toBe("frontend"); // PySide6 override
+      expect(tierOf("server/db.py")).toBe("backend"); // .py default
+      expect(tierOf("web/App.tsx")).toBe("frontend"); // react / web ext
+    });
+
+    it("warns when a relative python import points nowhere", () => {
+      const result = analyzeProject({
+        projectName: "bad-rel",
+        files: [{ path: "pkg/a.py", content: `from .missing import thing` }],
+      });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      const warning = result.graph.warnings.find((w) => w.code === "UNRESOLVED_IMPORT");
+      expect(warning?.raw).toBe(".missing");
+    });
+  });
 });

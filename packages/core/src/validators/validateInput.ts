@@ -13,7 +13,7 @@ export interface ValidationOutcome {
   warnings: GraphWarning[];
 }
 
-const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs", ".vue"];
+const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs", ".vue", ".py", ".pyi"];
 
 /** Matches a path against a pattern that supports `*` as a wildcard. */
 function matchesPattern(path: string, pattern: string): boolean {

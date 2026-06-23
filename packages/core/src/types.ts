@@ -23,7 +23,7 @@ export interface InputFile {
   language?: SupportedLanguage;
 }
 
-export type SupportedLanguage = "ts" | "tsx" | "js" | "jsx" | "vue";
+export type SupportedLanguage = "ts" | "tsx" | "js" | "jsx" | "vue" | "py";
 
 /** Alias map as authored by the user, e.g. { "@/*": "src/*" } (tsconfig-style). */
 export type AliasConfig = Record<string, string>;
@@ -57,6 +57,21 @@ export interface ProjectInput {
 
 export type NodeKind = "file" | "external";
 
+/**
+ * Architectural layer a node belongs to. Orthogonal to both `NodeKind`
+ * (file vs external) and the visual "role" (entry/leaf/circular): a node has
+ * exactly one tier AND one role at the same time. Language ≠ tier — a `.py`
+ * file can be a Flask backend OR a PySide6/tkinter desktop GUI (frontend).
+ */
+export type NodeTier = "frontend" | "backend" | "shared" | "unknown";
+
+/** How a node's tier was decided, surfaced in the UI so the inference is transparent. */
+export type TierReason =
+  | "framework-import" // highest confidence: a known framework import overrode the default
+  | "extension-default" // decided by file extension alone
+  | "user-override" // reserved: future manual assignment by the user
+  | "fallback-unknown"; // nothing to go on
+
 export interface NodeMetrics {
   fanin: number;
   fanout: number;
@@ -71,6 +86,12 @@ export interface GraphNode {
   type: NodeKind;
   /** Directory grouping, e.g. "src/components". Empty string for project root files. */
   group: string;
+  /** Architectural layer (frontend/backend/shared/unknown). Always set by the builder. */
+  tier: NodeTier;
+  /** Why `tier` was chosen — drives the "inferred from import flask" explanation in the UI. */
+  tierReason: TierReason;
+  /** The framework import that drove a `framework-import` decision, e.g. "flask". */
+  tierEvidence?: string;
   metrics: NodeMetrics;
 }
 
@@ -82,6 +103,12 @@ export interface GraphEdge {
   to: string;
   kind: EdgeKind;
   isCircular: boolean;
+  /**
+   * Whether this edge crosses the frontend/backend boundary. Reserved for the
+   * future cross-tier detection feature (fetch ↔ route); always undefined/false
+   * for now, so the UI does not draw it specially yet.
+   */
+  crossTier?: boolean;
 }
 
 /** A cycle is an ordered list of node ids where the first and last id are equal. */

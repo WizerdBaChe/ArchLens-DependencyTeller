@@ -42,7 +42,7 @@ export function analyzeProject(input: ProjectInput): AnalysisResult {
         ok: false,
         error: {
           code: "NO_SUPPORTED_FILES",
-          message: "No supported JS/TS/Vue files (.ts, .tsx, .js, .jsx, .mts, .cts, .mjs, .cjs, .vue) were found among the provided input.",
+          message: "No supported source files (.ts, .tsx, .js, .jsx, .mts, .cts, .mjs, .cjs, .vue, .py, .pyi) were found among the provided input.",
           details: validationWarnings,
         },
       };

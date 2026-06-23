@@ -7,8 +7,11 @@
  * separate module so each piece can be tested and replaced independently.
  */
 import { extractImports, inferLanguage } from "./parser/extractImports.js";
+import { extractPythonImports } from "./parser/extractPythonImports.js";
 import { extractVueScript } from "./parser/extractVueScript.js";
 import { isBareSpecifier, resolveSpecifier } from "./resolver/resolveSpecifier.js";
+import { resolvePythonSpecifier } from "./resolver/resolvePythonSpecifier.js";
+import { inferTier } from "./analyzer/inferTier.js";
 import type {
   AliasConfig,
   GraphEdge,
@@ -39,6 +42,11 @@ function dirOf(path: string): string {
   return path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "";
 }
 
+function isPythonFile(file: InputFile): boolean {
+  const lower = file.path.toLowerCase();
+  return file.language === "py" || lower.endsWith(".py") || lower.endsWith(".pyi");
+}
+
 export function buildGraph(files: InputFile[], alias: AliasConfig | undefined): BuildResult {
   const fileSet = new Set(files.map((f) => f.path));
   const languages = new Set<SupportedLanguage>();
@@ -55,21 +63,31 @@ export function buildGraph(files: InputFile[], alias: AliasConfig | undefined): 
         label: f.path.includes("/") ? f.path.slice(f.path.lastIndexOf("/") + 1) : f.path,
         type: "file" as const,
         group: dirOf(f.path),
+        // Tier is refined per-file below once imports are known; this is a
+        // safe default so a file that fails to parse still has a valid tier.
+        tier: "unknown" as const,
+        tierReason: "fallback-unknown" as const,
         metrics: { fanin: 0, fanout: 0, isEntry: false, isLeaf: false, isCircular: false },
       },
     ])
   );
 
   for (const file of files) {
-    const isVue = file.language === "vue" || file.path.toLowerCase().endsWith(".vue");
+    const isPython = isPythonFile(file);
+
+    const isVue = !isPython && (file.language === "vue" || file.path.toLowerCase().endsWith(".vue"));
     const vueScript = isVue ? extractVueScript(file.content) : null;
     const contentToAnalyze = vueScript ? vueScript.code : file.content;
-    const language = file.language === "vue"
-      ? (vueScript?.language ?? "js")
-      : (file.language ?? (vueScript ? vueScript.language : inferLanguage(file.path)));
+    const language: SupportedLanguage = isPython
+      ? "py"
+      : file.language === "vue"
+        ? (vueScript?.language ?? "js")
+        : (file.language ?? (vueScript ? vueScript.language : inferLanguage(file.path)));
     languages.add(language);
 
-    const { imports, parseError } = extractImports(file.path, contentToAnalyze, language);
+    const { imports, parseError } = isPython
+      ? extractPythonImports(file.path, contentToAnalyze)
+      : extractImports(file.path, contentToAnalyze, language);
     if (parseError) {
       warnings.push({
         code: "PARSE_ERROR",
@@ -80,8 +98,21 @@ export function buildGraph(files: InputFile[], alias: AliasConfig | undefined): 
       continue;
     }
 
+    // Tier is orthogonal to language/role: decided from import signals first,
+    // falling back to extension. Refine the pre-created node now that we know
+    // its imports.
+    const { tier, reason, evidence } = inferTier(file.path, imports);
+    const node = nodes.get(file.path);
+    if (node) {
+      node.tier = tier;
+      node.tierReason = reason;
+      if (evidence) node.tierEvidence = evidence;
+    }
+
     for (const rawImport of imports) {
-      const outcome = resolveSpecifier(file.path, rawImport.specifier, fileSet, alias);
+      const outcome = isPython
+        ? resolvePythonSpecifier(file.path, rawImport.specifier, fileSet)
+        : resolveSpecifier(file.path, rawImport.specifier, fileSet, alias);
 
       if (outcome.status === "file") {
         edgeCounter += 1;
@@ -93,10 +124,21 @@ export function buildGraph(files: InputFile[], alias: AliasConfig | undefined): 
           isCircular: false, // filled in later by the analyzer once cycles are known
         });
       } else if (outcome.status === "unresolved") {
+        // Python only reports "unresolved" for relative imports (".foo") that
+        // point nowhere — absolute dotted imports fall through to "external".
+        // A failed relative import is always worth flagging.
+        if (isPython) {
+          warnings.push({
+            code: "UNRESOLVED_IMPORT",
+            path: file.path,
+            raw: rawImport.specifier,
+            message: `Could not resolve "${rawImport.specifier}" imported from "${file.path}".`,
+          });
+        }
         // Bare specifiers that *look* like they should have resolved (e.g. an
         // alias-shaped path with no alias config) are flagged; genuinely
         // external bare specifiers are not graphed in MVP and are not warnings.
-        if (!isBareSpecifier(rawImport.specifier) || rawImport.specifier.startsWith("@/")) {
+        else if (!isBareSpecifier(rawImport.specifier) || rawImport.specifier.startsWith("@/")) {
           // Non-JS asset imports (CSS, images, fonts, JSON, etc.) are valid TS/TSX
           // syntax handled by bundlers, not part of the module graph — skip silently.
           if (!isNonJsAssetImport(rawImport.specifier)) {
