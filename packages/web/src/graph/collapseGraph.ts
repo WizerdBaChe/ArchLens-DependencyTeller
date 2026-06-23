@@ -22,6 +22,8 @@ export interface DisplayEdge {
   from: string;
   to: string;
   isCircular: boolean;
+  /** Crosses the frontend/backend boundary (sticky across a folded bundle). */
+  crossTier: boolean;
 }
 
 export interface DisplayGraph {
@@ -105,11 +107,19 @@ export function buildDisplayGraph(
     const key = `${from} ${to}`;
     const existing = seen.get(key);
     if (existing) {
-      // Keep circular flag sticky so a folded bundle still reads as circular.
+      // Keep circular / cross-tier flags sticky so a folded bundle still reads
+      // as circular or boundary-crossing if any member edge was.
       if (e.isCircular) existing.isCircular = true;
+      if (e.crossTier) existing.crossTier = true;
       continue;
     }
-    seen.set(key, { id: `d:${from}->${to}`, from, to, isCircular: e.isCircular });
+    seen.set(key, {
+      id: `d:${from}->${to}`,
+      from,
+      to,
+      isCircular: e.isCircular,
+      crossTier: e.crossTier ?? false,
+    });
   }
 
   return {

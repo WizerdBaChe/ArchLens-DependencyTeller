@@ -221,18 +221,26 @@ export function GraphView() {
 
     const nextEdges: Edge[] = display.edges.map((e) => {
       const isFocused = focusSet ? focusSet.has(e.from) && focusSet.has(e.to) : true;
+      // Edge colour priority: circular (amber, hardest problem) > cross-tier
+      // (magenta, the frontend↔backend boundary crossing) > normal (cyan dim).
+      const stroke = e.isCircular
+        ? "var(--color-accent-amber)"
+        : e.crossTier
+        ? "var(--color-accent-magenta)"
+        : "var(--color-accent-cyan-dim)";
+      const markerColor = e.isCircular ? "#f5a524" : e.crossTier ? "#d6409f" : "#2c6e69";
       return {
         id: e.id,
         source: e.from,
         target: e.to,
         animated: e.isCircular,
         style: {
-          stroke: e.isCircular ? "var(--color-accent-amber)" : "var(--color-accent-cyan-dim)",
-          strokeWidth: e.isCircular ? 2 : 1.25,
-          strokeDasharray: e.isCircular ? "6 4" : undefined,
+          stroke,
+          strokeWidth: e.isCircular || e.crossTier ? 2 : 1.25,
+          strokeDasharray: e.isCircular ? "6 4" : e.crossTier ? "2 3" : undefined,
           opacity: isFocused ? 1 : 0.12,
         },
-        markerEnd: { type: MarkerType.ArrowClosed, color: e.isCircular ? "#f5a524" : "#2c6e69", width: 14, height: 14 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: markerColor, width: 14, height: 14 },
       };
     });
 

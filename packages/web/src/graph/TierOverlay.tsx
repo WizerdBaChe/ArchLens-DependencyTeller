@@ -74,6 +74,12 @@ export function TierOverlay() {
           )}
         </ul>
         <div className="tier-legend__axis tier-legend__axis--muted">{t.legend.borderAxis}</div>
+        <ul className="tier-legend__items">
+          <li>
+            <span className="tier-legend__edge tier-legend__edge--cross-tier" />
+            {t.legend.crossTierEdge}
+          </li>
+        </ul>
       </div>
     </div>
   );

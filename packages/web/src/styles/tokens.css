@@ -25,6 +25,7 @@
   --color-accent-amber: #f5a524;    /* cycle / fault / warning */
   --color-accent-amber-dim: #7a5318;
   --color-accent-violet: #8b7cf6;   /* entry nodes */
+  --color-accent-magenta: #d6409f;  /* cross-tier (frontend↔backend boundary) edges */
   --color-danger: #f0506e;
 
   /* Typography */
