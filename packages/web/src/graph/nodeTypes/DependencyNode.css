@@ -45,6 +45,39 @@
   border: none;
 }
 
+.dep-node__collapse {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-tertiary);
+  font-size: var(--fs-sm);
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+/* Reveal the collapse affordance on hover/selection to keep nodes uncluttered. */
+.dep-node:hover .dep-node__collapse,
+.dep-node.is-selected .dep-node__collapse {
+  opacity: 1;
+}
+
+.dep-node__collapse:hover {
+  border-color: var(--color-accent-cyan);
+  color: var(--color-text-primary);
+}
+
 .dep-node--entry {
   border-color: var(--color-accent-violet);
 }
@@ -75,4 +108,61 @@
 
 .dep-node.is-dimmed {
   opacity: 0.22;
+}
+
+/* ---------------------------------------------------------------------------
+ * Tier axis — SHAPE + background tint. Orthogonal to the role axis above
+ * (which owns the border colour), so a node shows both at once without clash.
+ *   frontend → cool tint, fully rounded         (web UI / Python GUI)
+ *   backend  → warm tint, squared-off left edge  (server modules)
+ *   shared   → neutral surface, balanced radius
+ *   unknown  → muted + dashed border             (awaiting classification)
+ * Each tier also gets a coloured left bar via ::before for at-a-glance grouping.
+ * --------------------------------------------------------------------------- */
+.dep-node::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-top-left-radius: inherit;
+  border-bottom-left-radius: inherit;
+  background: transparent;
+}
+
+.dep-node--tier-frontend {
+  background: linear-gradient(180deg, rgba(79, 209, 197, 0.10), rgba(79, 209, 197, 0.03));
+  border-radius: var(--radius-lg); /* fully rounded — "soft" UI feel */
+}
+.dep-node--tier-frontend::before {
+  background: var(--color-accent-cyan);
+}
+
+.dep-node--tier-backend {
+  background: linear-gradient(180deg, rgba(139, 124, 246, 0.10), rgba(139, 124, 246, 0.03));
+  /* squared-off left edge distinguishes the silhouette at a glance */
+  border-radius: 2px var(--radius-md) var(--radius-md) 2px;
+}
+.dep-node--tier-backend::before {
+  background: var(--color-accent-violet);
+  width: 4px;
+}
+
+.dep-node--tier-shared {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+}
+.dep-node--tier-shared::before {
+  background: var(--color-text-tertiary);
+}
+
+.dep-node--tier-unknown {
+  background: var(--color-surface);
+  border-style: dashed;
+  opacity: 0.92;
+  border-radius: var(--radius-md);
+}
+.dep-node--tier-unknown::before {
+  background: transparent;
 }

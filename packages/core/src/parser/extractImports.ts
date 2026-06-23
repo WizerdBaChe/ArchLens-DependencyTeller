@@ -28,6 +28,9 @@ const SCRIPT_KIND_BY_LANGUAGE: Record<SupportedLanguage, ts.ScriptKind> = {
   // Vue SFC content is extracted and re-tagged as "ts" or "js" by extractVueScript
   // before reaching this function, so this entry is a safety fallback only.
   vue: ts.ScriptKind.JS,
+  // Python is parsed by extractPythonImports, never by this TS-based parser;
+  // this entry only exists to satisfy the exhaustive Record type.
+  py: ts.ScriptKind.JS,
 };
 
 export function inferLanguage(path: string): SupportedLanguage {

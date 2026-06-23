@@ -1,7 +1,7 @@
 import JSZip from "jszip";
 import type { InputFile } from "@archlens/core";
 
-const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs", ".vue"];
+const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs", ".vue", ".py", ".pyi"];
 const MAX_FILES = 3000;
 const MAX_FILE_SIZE_BYTES = 1.5 * 1024 * 1024; // skip generated/minified giants
 
@@ -17,7 +17,7 @@ function isSupported(path: string): boolean {
 }
 
 function looksGenerated(path: string): boolean {
-  return /(^|\/)(node_modules|dist|build|\.next|coverage)\//.test(path);
+  return /(^|\/)(node_modules|dist|build|\.next|coverage|__pycache__|\.venv|venv|\.mypy_cache|\.pytest_cache)\//.test(path);
 }
 
 /** Reads a .zip File/Blob and returns project-relative source files, skipping non-code and generated paths. */

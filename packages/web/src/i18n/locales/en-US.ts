@@ -60,6 +60,15 @@ export interface Locale {
     roleEntry: string;
     roleLeaf: string;
     roleInternal: string;
+    tier: string;
+    tierFrontend: string;
+    tierBackend: string;
+    tierShared: string;
+    tierUnknown: string;
+    tierReasonFramework: (evidence: string) => string;
+    tierReasonExtension: string;
+    tierReasonUserOverride: string;
+    tierReasonUnknown: string;
     upstream: (count: number) => string;
     downstream: (count: number) => string;
     nothingImports: string;
@@ -88,8 +97,36 @@ export interface Locale {
     titleFanIn: string;
     titleFanOut: string;
   };
+  tierFilter: {
+    label: string;
+    all: string;
+    frontend: string;
+    backend: string;
+    ariaLabel: string;
+  };
+  legend: {
+    title: string;
+    shapeAxis: string;
+    borderAxis: string;
+    tierFrontend: string;
+    tierBackend: string;
+    tierShared: string;
+    tierUnknown: string;
+  };
   langSwitcher: {
     ariaLabel: string;
+  };
+  collapse: {
+    collapseAll: string;
+    expandAll: string;
+    collapseAllHint: string;
+    expandAllHint: string;
+    bodyHint: string;
+    expandAria: string;
+    collapseGroupAria: string;
+    collapseGroupHint: (group: string) => string;
+    ariaLabel: string;
+    memberCount: (count: number) => string;
   };
 }
 
@@ -122,9 +159,9 @@ const enUS: Locale = {
     submitAnalyzing: "Analyzing…",
     errorZipOnly: "Only .zip files are supported in this mode.",
     errorNoFilesFolder:
-      "No supported JS/TS/Vue files were found in that folder (.ts, .tsx, .js, .jsx, .mts, .cts, .mjs, .cjs, .vue).",
+      "No supported source files were found in that folder (.ts, .tsx, .js, .jsx, .mts, .cts, .mjs, .cjs, .vue, .py, .pyi).",
     errorNoFilesArchive:
-      "No supported JS/TS/Vue files were found inside that archive (.ts, .tsx, .js, .jsx, .mts, .cts, .mjs, .cjs, .vue).",
+      "No supported source files were found inside that archive (.ts, .tsx, .js, .jsx, .mts, .cts, .mjs, .cjs, .vue, .py, .pyi).",
     errorHttpsRequired:
       "Folder access requires HTTPS. Use the deployed app or run the dev server with HTTPS (npm run dev).",
     errorFolderRead: "Could not read the folder: ",
@@ -162,6 +199,15 @@ const enUS: Locale = {
     roleEntry: "Entry point",
     roleLeaf: "Leaf",
     roleInternal: "Internal",
+    tier: "Layer",
+    tierFrontend: "Frontend",
+    tierBackend: "Backend",
+    tierShared: "Shared",
+    tierUnknown: "Unclassified",
+    tierReasonFramework: (evidence) => `detected import ${evidence}`,
+    tierReasonExtension: "by file extension",
+    tierReasonUserOverride: "set manually",
+    tierReasonUnknown: "no signal — classify manually",
     upstream: (count) => `Upstream — depends on this (${count})`,
     downstream: (count) => `Downstream — this depends on (${count})`,
     nothingImports: "Nothing imports this file.",
@@ -195,8 +241,36 @@ const enUS: Locale = {
     titleFanIn: "Fan-in (depended on by)",
     titleFanOut: "Fan-out (depends on)",
   },
+  tierFilter: {
+    label: "Layer",
+    all: "All",
+    frontend: "Frontend",
+    backend: "Backend",
+    ariaLabel: "Filter by architectural layer",
+  },
+  legend: {
+    title: "Legend",
+    shapeAxis: "Shape / tint = layer",
+    borderAxis: "Border = role (entry / leaf / cycle)",
+    tierFrontend: "Frontend",
+    tierBackend: "Backend",
+    tierShared: "Shared",
+    tierUnknown: "Unclassified (dashed)",
+  },
   langSwitcher: {
     ariaLabel: "Switch language",
+  },
+  collapse: {
+    collapseAll: "Collapse all",
+    expandAll: "Expand all",
+    collapseAllHint: "Fold every directory into a single node (overview)",
+    expandAllHint: "Expand every directory back into individual files",
+    bodyHint: "Click to highlight this directory's dependencies",
+    expandAria: "Expand directory",
+    collapseGroupAria: "Collapse this directory",
+    collapseGroupHint: (group) => `Collapse ${group} into a single node`,
+    ariaLabel: "Collapse directories",
+    memberCount: (count) => `${count} files`,
   },
 };
 

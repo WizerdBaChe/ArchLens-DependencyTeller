@@ -1,6 +1,6 @@
 import type { InputFile } from "@archlens/core";
 
-const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs", ".vue"];
+const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs", ".vue", ".py", ".pyi"];
 const MAX_FILES = 3000;
 const MAX_FILE_SIZE_BYTES = 1.5 * 1024 * 1024;
 
@@ -26,6 +26,11 @@ const SKIP_DIRS = new Set([
   ".turbo",
   "out",
   ".cache",
+  "__pycache__",
+  ".venv",
+  "venv",
+  ".mypy_cache",
+  ".pytest_cache",
 ]);
 
 async function collectFiles(
