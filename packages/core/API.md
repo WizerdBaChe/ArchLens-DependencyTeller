@@ -170,6 +170,7 @@ interface GraphEdge {
   to:         string;    // target node id
   kind:       "import" | "require" | "dynamic-import" | "export-from";
   isCircular: boolean;
+  crossTier:  boolean;   // true when it joins a frontend node to a backend node (either way)
 }
 ```
 

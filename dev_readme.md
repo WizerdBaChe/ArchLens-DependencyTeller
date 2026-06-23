@@ -79,16 +79,28 @@ npm run build -w @archlens/web
 Output lands in `packages/web/dist/` — a fully static site. Serve with any static file
 server (`npx serve packages/web/dist`); no backend required.
 
-## Known MVP Boundaries (Intentionally Deferred)
+## Known Boundaries (Intentionally Deferred)
 
 - `.ts/.tsx/.js/.jsx/.mts/.cts/.mjs/.cjs/.vue` and `.py/.pyi` are parsed; other languages are
   out of scope.
 - External packages (`node_modules` / installed Python packages) are detected but not graphed
   as nodes.
-- Image export (PNG/SVG of the graph) is not implemented; JSON and CSV export are.
-- Multi-hop impact tracing beyond direct upstream/downstream is not implemented.
 - Tier inference uses extension defaults + config signals; it does not deep-analyse build
   tooling to confirm a module's runtime.
+
+### Closed since MVP
+
+- **Image export** — PNG and SVG export of the rendered graph now exist alongside JSON/CSV.
+  `packages/web/src/export/exportImage.ts` serialises the live ReactFlow viewport with
+  `html-to-image` (client-side only — no network), so the output is WYSIWYG.
+- **Cross-tier edges** — `GraphEdge.crossTier` is now set by the engine: `true` when an edge
+  joins a concrete `frontend` node to a concrete `backend` node (either direction). Edges
+  touching `shared`/`unknown` are not crossings. The web view renders these magenta/dashed and
+  the legend explains them; CSV export carries the column.
+- **Multi-hop impact tracing** — the node detail panel has a hop-depth selector (1 / 2 / 3 /
+  All). Depth 1 is the original direct-neighbour behaviour; higher values walk the graph
+  transitively. The walk is a web-side BFS (`reachableImpact` in `useGraphStore.ts`); the core
+  `traceNodeImpact` stays 1-hop by design.
 
 ## Extension Points
 
