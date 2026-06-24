@@ -1,1 +1,2 @@
+@import "./styles/archlens-tokens.css"; /* @archlens/tokens（vendored）— 須在本地 tokens 之前 */
 @import "./styles/global.css";

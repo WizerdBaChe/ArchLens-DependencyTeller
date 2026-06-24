@@ -7,19 +7,23 @@
    ------------------------------------------------------------------- */
 
 :root {
+  /* ---- @archlens/tokens 採用（Phase 4）----
+     一般 surface/text/border「別名」到系列共用 token（--al-*），顏色隨掛在 <html>
+     的 .al-theme-* 主題包切換。字體 / 圓角 / graph-domain 強調色維持本地。
+     系列慣例：預設＝Light、不持久化（見 ThemeSwitcher / index.html）。 */
   /* Color — surfaces */
-  --color-bg: #0a1020;          /* ink navy, page backdrop */
-  --color-surface: #101a30;     /* panels, cards */
-  --color-surface-raised: #16213c; /* hovered / active surface */
-  --color-grid-line: #1b2740;   /* blueprint grid, very low contrast */
-  --color-border: #233252;
+  --color-bg: var(--al-bg);
+  --color-surface: var(--al-surface);
+  --color-surface-raised: var(--al-surface-raised);
+  --color-grid-line: #1b2740;   /* blueprint grid, local; per-theme below */
+  --color-border: var(--al-border);
 
   /* Color — text */
-  --color-text-primary: #e8edf7;
-  --color-text-secondary: #94a3c4;
-  --color-text-tertiary: #5d6e94;
+  --color-text-primary: var(--al-text);
+  --color-text-secondary: var(--al-text-secondary);
+  --color-text-tertiary: var(--al-text-tertiary);
 
-  /* Color — accents */
+  /* Color — graph-domain accents（結構/故障/入口/跨層；本產品語意，留本地、各主題覆寫） */
   --color-accent-cyan: #4fd1c5;     /* structure / primary edges / focus */
   --color-accent-cyan-dim: #2c6e69;
   --color-accent-amber: #f5a524;    /* cycle / fault / warning */
@@ -40,14 +44,14 @@
   --fs-lg: 1.375rem;    /* 22px */
   --fs-xl: 2rem;        /* 32px */
 
-  /* Spacing scale (4/8 rhythm) */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
-  --space-7: 48px;
+  /* Spacing scale — 採用共用結構 token（值相同） */
+  --space-1: var(--al-space-1);
+  --space-2: var(--al-space-2);
+  --space-3: var(--al-space-3);
+  --space-4: var(--al-space-4);
+  --space-5: var(--al-space-5);
+  --space-6: var(--al-space-6);
+  --space-7: var(--al-space-7);
 
   /* Radius / elevation */
   --radius-sm: 4px;
@@ -61,8 +65,26 @@
   --duration-base: 220ms;
 }
 
-@media (prefers-color-scheme: light) {
-  /* MVP ships dark-only (matches "blueprint" identity); this media query
-     is reserved so a light variant can be added later without touching
-     component code — only token values would change. */
+/* ---- graph-domain 顏色的各主題覆寫 ----
+   :root 預設＝原本的 ink-navy/blueprint 色（即 .al-theme-blueprint 用值）。
+   light / hacker 在此重新調色：light 是系列預設，須在白底維持對比與可讀性。 */
+.al-theme-light {
+  --color-grid-line: #e3e1d8;
+  --color-accent-cyan: #0d9488;     /* teal-600 — structure，白底可讀 */
+  --color-accent-cyan-dim: #99f0e6;
+  --color-accent-amber: #b45309;    /* amber-700 — fault/cycle */
+  --color-accent-amber-dim: #fde2b3;
+  --color-accent-violet: #6d28d9;   /* entry */
+  --color-accent-magenta: #be185d;  /* cross-tier */
+  --color-danger: #dc2626;
+}
+.al-theme-hacker {
+  --color-grid-line: #1c1c22;
+  --color-accent-cyan: #39ff6a;     /* SuiteNav 品牌綠＝structure */
+  --color-accent-cyan-dim: #15401f;
+  --color-accent-amber: #ffb454;
+  --color-accent-amber-dim: #4a3410;
+  --color-accent-violet: #b69bff;
+  --color-accent-magenta: #ff7ad1;
+  --color-danger: #ff6b5b;
 }

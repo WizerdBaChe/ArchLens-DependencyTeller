@@ -54,6 +54,37 @@
   color: var(--color-text-primary);
 }
 
+/* Phase 4：主題切換器（segmented control，共用 token 上色） */
+.theme-switch {
+  display: inline-flex;
+  flex-shrink: 0;
+  border: 1px solid var(--al-border);
+  border-radius: var(--al-radius-md);
+  overflow: hidden;
+  background: var(--al-surface);
+}
+.theme-switch__btn {
+  font-family: var(--al-font-mono, var(--font-mono));
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 6px 10px;
+  border: 0;
+  background: transparent;
+  color: var(--al-text-secondary);
+  cursor: pointer;
+  transition: background var(--al-transition-fast), color var(--al-transition-fast);
+}
+.theme-switch__btn + .theme-switch__btn {
+  border-left: 1px solid var(--al-border);
+}
+.theme-switch__btn:hover {
+  color: var(--al-text);
+}
+.theme-switch__btn.is-active {
+  background: var(--al-accent);
+  color: var(--al-accent-contrast);
+}
+
 @media (max-width: 880px) {
   .app-topbar {
     flex-wrap: wrap;
