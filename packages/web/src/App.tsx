@@ -7,6 +7,7 @@ import { SearchBar } from "./search/SearchBar";
 import { ExportMenu } from "./export/ExportMenu";
 import { useLocale } from "./i18n";
 import { LanguageSwitcher } from "./i18n/LanguageSwitcher";
+import { ThemeSwitcher } from "./theme/ThemeSwitcher";
 import "./App.css";
 
 function Logo() {
@@ -52,6 +53,7 @@ export default function App() {
         )}
 
         {!hasGraph && <div className="app-topbar__spacer" />}
+        <ThemeSwitcher />
         <LanguageSwitcher />
       </header>
 
