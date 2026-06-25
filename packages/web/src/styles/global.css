@@ -65,22 +65,32 @@ button {
   display: grid;
   grid-template-rows: auto 1fr;
   height: 100%;
+  /* The shell must never be wider than the viewport. Without this, a grid item
+     whose content can't shrink (the topbar's nowrap buttons) widens the whole
+     grid and pushes the graph + its absolute-positioned overlays off-screen. */
+  width: 100%;
+  overflow: hidden;
 }
 
 .app-topbar {
   display: flex;
   align-items: center;
-  gap: var(--space-5);
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
   padding: var(--space-3) var(--space-5);
   border-bottom: 1px solid var(--color-border);
   background: rgba(16, 26, 48, 0.6);
   backdrop-filter: blur(6px);
+  /* A grid item defaults to min-width: auto, so its nowrap children would
+     otherwise force the column wider than the viewport. */
+  min-width: 0;
 }
 
 .app-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
   min-height: 0;
+  min-width: 0;
 }
 
 .app-body.app-body--no-side {
