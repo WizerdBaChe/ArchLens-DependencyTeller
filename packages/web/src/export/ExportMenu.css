@@ -16,6 +16,6 @@
 }
 
 .export-menu button:hover {
-  border-color: var(--color-accent-cyan);
+  border-color: var(--color-ui-accent);
   color: var(--color-text-primary);
 }

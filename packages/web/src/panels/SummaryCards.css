@@ -43,7 +43,7 @@
 }
 
 .summary-card--button:hover {
-  border-color: var(--color-accent-cyan);
+  border-color: var(--color-ui-accent);
 }
 
 .summary-card--alert .summary-card__value {
