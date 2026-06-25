@@ -14,7 +14,7 @@
   font-size: var(--fs-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-accent-cyan);
+  color: var(--color-ui-accent);
   margin: 0 0 var(--space-3);
 }
 
@@ -64,8 +64,8 @@
 }
 
 .input-panel__tab.is-active {
-  color: var(--color-bg);
-  background: var(--color-accent-cyan);
+  color: var(--color-ui-accent-contrast);
+  background: var(--color-ui-accent);
 }
 
 .input-panel__field {
@@ -91,7 +91,7 @@
 
 .input-panel__field input[type="text"]:focus,
 .input-panel__field textarea:focus {
-  border-color: var(--color-accent-cyan);
+  border-color: var(--color-ui-accent);
 }
 
 .input-panel__dropzone {
@@ -106,13 +106,14 @@
 
 .input-panel__dropzone.is-dragging,
 .input-panel__dropzone:hover {
-  border-color: var(--color-accent-cyan);
-  background: rgba(79, 209, 197, 0.05);
+  border-color: var(--color-ui-accent);
+  /* faint accent wash that follows the theme (no hard-coded cyan rgba) */
+  background: color-mix(in srgb, var(--color-ui-accent) 6%, transparent);
 }
 
 .input-panel__dropzone-filename {
   font-family: var(--font-mono);
-  color: var(--color-accent-cyan);
+  color: var(--color-ui-accent);
   font-weight: 500;
 }
 
@@ -149,8 +150,8 @@
 }
 
 .input-panel__submit {
-  background: var(--color-accent-cyan);
-  color: var(--color-bg);
+  background: var(--color-ui-accent);
+  color: var(--color-ui-accent-contrast);
   border: none;
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);

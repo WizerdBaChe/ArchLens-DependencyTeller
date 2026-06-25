@@ -26,7 +26,7 @@
 }
 
 .lang-switcher__btn.is-active {
-  background: var(--color-accent-cyan);
-  color: var(--color-bg);
+  background: var(--color-ui-accent);
+  color: var(--color-ui-accent-contrast);
   font-weight: 600;
 }

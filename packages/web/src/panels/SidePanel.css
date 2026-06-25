@@ -29,7 +29,7 @@
 
 .side-panel__tab.is-active {
   color: var(--color-text-primary);
-  border-bottom-color: var(--color-accent-cyan);
+  border-bottom-color: var(--color-ui-accent);
 }
 
 .side-panel__count {

@@ -32,6 +32,13 @@
   --color-accent-magenta: #d6409f;  /* cross-tier (frontend↔backend boundary) edges */
   --color-danger: #f0506e;
 
+  /* Color — UI-chrome accent（外殼互動：按鈕 hover/active、tab、焦點環、上傳區、
+     主要 CTA）。別名到系列主題的 --al-accent，所以它跟著主題包的品牌色走
+     （Blueprint=琥珀黃、Hacker=綠、Light=靛）。刻意與上面的 graph-domain
+     語意色分開：畫布上的 cyan=structure 等語意不受主題品牌色影響。 */
+  --color-ui-accent: var(--al-accent);
+  --color-ui-accent-contrast: var(--al-accent-contrast);
+
   /* Typography */
   --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;

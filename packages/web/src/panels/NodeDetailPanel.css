@@ -166,8 +166,8 @@
 }
 
 .node-detail__depth-btn.is-active {
-  border-color: var(--color-accent-cyan);
-  color: var(--color-accent-cyan);
+  border-color: var(--color-ui-accent);
+  color: var(--color-ui-accent);
 }
 
 /* Hop-distance badge appended to a node in a multi-hop trace. */

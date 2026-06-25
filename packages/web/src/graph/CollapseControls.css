@@ -24,7 +24,7 @@
 }
 
 .collapse-controls__btn:hover:not(:disabled) {
-  border-color: var(--color-accent-cyan);
+  border-color: var(--color-ui-accent);
   color: var(--color-text-primary);
 }
 

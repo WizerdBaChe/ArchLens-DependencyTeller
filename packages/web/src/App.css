@@ -30,7 +30,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 160px;
+  max-width: 120px;
 }
 
 .app-topbar__spacer {
@@ -50,7 +50,7 @@
 }
 
 .app-new-analysis:hover {
-  border-color: var(--color-accent-cyan);
+  border-color: var(--color-ui-accent);
   color: var(--color-text-primary);
 }
 
@@ -85,12 +85,18 @@
   color: var(--al-accent-contrast);
 }
 
+/* Below ~1300px the project-name chip is the cheapest thing to drop to keep
+   the topbar on a single row — it's secondary (the user just chose it) and
+   reappears on wider screens. */
+@media (max-width: 1300px) {
+  .app-project-name {
+    display: none;
+  }
+}
+
 @media (max-width: 880px) {
   .app-topbar {
     flex-wrap: wrap;
     row-gap: var(--space-2);
-  }
-  .app-project-name {
-    display: none;
   }
 }
