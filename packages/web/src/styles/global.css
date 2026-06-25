@@ -76,14 +76,20 @@ button {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--space-3) var(--space-5);
-  padding: var(--space-3) var(--space-5);
+  /* Tighter horizontal gap so the whole bar stays on one row down to common
+     laptop widths; it only wraps when the content genuinely cannot fit. */
+  gap: var(--space-3) var(--space-3);
+  padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--color-border);
   background: rgba(16, 26, 48, 0.6);
   backdrop-filter: blur(6px);
   /* A grid item defaults to min-width: auto, so its nowrap children would
      otherwise force the column wider than the viewport. */
   min-width: 0;
+  /* Own stacking context above the graph canvas so the export dropdown is not
+     covered by the ReactFlow pane (which sits later in the DOM). */
+  position: relative;
+  z-index: 10;
 }
 
 .app-body {

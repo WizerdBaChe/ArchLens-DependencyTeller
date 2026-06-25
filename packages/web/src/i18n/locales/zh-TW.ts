@@ -129,6 +129,8 @@ const zhTW: Locale = {
 
   // Export menu
   exportMenu: {
+    exportLabel: "匯出",
+    exportAria: "匯出選單",
     exportJson: "匯出 JSON",
     exportCsv: "匯出 CSV",
     exportPng: "匯出 PNG",

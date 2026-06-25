@@ -92,6 +92,8 @@ export interface Locale {
     ariaClear: string;
   };
   exportMenu: {
+    exportLabel: string;
+    exportAria: string;
     exportJson: string;
     exportCsv: string;
     exportPng: string;
@@ -245,6 +247,8 @@ const enUS: Locale = {
     ariaClear: "Clear search",
   },
   exportMenu: {
+    exportLabel: "Export",
+    exportAria: "Export menu",
     exportJson: "Export JSON",
     exportCsv: "Export CSV",
     exportPng: "Export PNG",
