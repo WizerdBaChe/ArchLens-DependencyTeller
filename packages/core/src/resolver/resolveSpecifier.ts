@@ -17,6 +17,15 @@ export type ResolutionOutcome =
 const RESOLVABLE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs", ".vue"] as const;
 const INDEX_FILES = RESOLVABLE_EXTENSIONS.map((ext) => `index${ext}`);
 
+// TypeScript ESM convention: import specifiers use .js/.mjs/.cjs even when the
+// actual source file on disk is .ts/.tsx/.mts/.cts (NodeNext/bundler resolution).
+// When the exact candidate isn't found, try the TS counterpart before giving up.
+const TS_ESM_REMAP: Record<string, string[]> = {
+  ".js": [".ts", ".tsx"],
+  ".mjs": [".mts"],
+  ".cjs": [".cts"],
+};
+
 /** Normalizes "./a/../b" and backslashes into a clean forward-slash path. */
 export function normalizePath(path: string): string {
   const parts = path.replace(/\\/g, "/").split("/");
@@ -37,6 +46,17 @@ function joinRelative(fromFile: string, specifier: string): string {
 /** Tries a candidate path against the known file set, with extension/index fallback. */
 function matchAgainstFileSet(candidate: string, fileSet: Set<string>): string | undefined {
   if (fileSet.has(candidate)) return candidate;
+
+  // TypeScript ESM: .js/.mjs/.cjs in specifiers often points to .ts/.mts/.cts on disk.
+  for (const [jsExt, tsExts] of Object.entries(TS_ESM_REMAP)) {
+    if (candidate.endsWith(jsExt)) {
+      const base = candidate.slice(0, -jsExt.length);
+      for (const tsExt of tsExts) {
+        if (fileSet.has(base + tsExt)) return base + tsExt;
+      }
+    }
+  }
+
   for (const ext of RESOLVABLE_EXTENSIONS) {
     if (fileSet.has(candidate + ext)) return candidate + ext;
   }
