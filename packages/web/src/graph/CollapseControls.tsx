@@ -12,31 +12,46 @@ export function CollapseControls() {
   const collapsedGroups = useGraphStore((s) => s.collapsedGroups);
   const collapseAllGroups = useGraphStore((s) => s.collapseAllGroups);
   const expandAllGroups = useGraphStore((s) => s.expandAllGroups);
+  const edgeStyle = useGraphStore((s) => s.edgeStyle);
+  const setEdgeStyle = useGraphStore((s) => s.setEdgeStyle);
   const { t } = useLocale();
 
-  if (collapsible.size === 0) return null;
-
+  const hasCollapsible = collapsible.size > 0;
   const allCollapsed = collapsedGroups.size >= collapsible.size;
+  const isOrthogonal = edgeStyle === "smoothstep";
 
   return (
     <div className="collapse-controls" role="group" aria-label={t.collapse.ariaLabel}>
+      {hasCollapsible && (
+        <>
+          <button
+            type="button"
+            className="collapse-controls__btn"
+            onClick={collapseAllGroups}
+            disabled={allCollapsed}
+            title={t.collapse.collapseAllHint}
+          >
+            {t.collapse.collapseAll}
+          </button>
+          <button
+            type="button"
+            className="collapse-controls__btn"
+            onClick={expandAllGroups}
+            disabled={collapsedGroups.size === 0}
+            title={t.collapse.expandAllHint}
+          >
+            {t.collapse.expandAll}
+          </button>
+        </>
+      )}
       <button
         type="button"
         className="collapse-controls__btn"
-        onClick={collapseAllGroups}
-        disabled={allCollapsed}
-        title={t.collapse.collapseAllHint}
+        onClick={() => setEdgeStyle(isOrthogonal ? "bezier" : "smoothstep")}
+        title={t.edgeStyle.hint}
+        aria-pressed={isOrthogonal}
       >
-        {t.collapse.collapseAll}
-      </button>
-      <button
-        type="button"
-        className="collapse-controls__btn"
-        onClick={expandAllGroups}
-        disabled={collapsedGroups.size === 0}
-        title={t.collapse.expandAllHint}
-      >
-        {t.collapse.expandAll}
+        {t.edgeStyle.label}: {isOrthogonal ? t.edgeStyle.orthogonal : t.edgeStyle.curved}
       </button>
     </div>
   );

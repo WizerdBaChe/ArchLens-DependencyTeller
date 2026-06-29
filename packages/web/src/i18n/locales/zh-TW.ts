@@ -197,6 +197,12 @@ const zhTW: Locale = {
   langSwitcher: {
     ariaLabel: "切換語言",
   },
+  edgeStyle: {
+    label: "連線",
+    curved: "弧線",
+    orthogonal: "正交",
+    hint: "切換連線走線方式：弧線（bezier）或正交直角",
+  },
   collapse: {
     collapseAll: "全部摺疊",
     expandAll: "全部展開",

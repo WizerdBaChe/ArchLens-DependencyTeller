@@ -132,7 +132,9 @@
 }
 
 .dep-node--tier-frontend {
-  background: linear-gradient(180deg, rgba(79, 209, 197, 0.10), rgba(79, 209, 197, 0.03));
+  /* Tier tint layered OVER an opaque surface — so edges passing behind a node
+     are hidden by the node (they "go underneath") instead of showing through. */
+  background: linear-gradient(180deg, rgba(79, 209, 197, 0.10), rgba(79, 209, 197, 0.03)), var(--color-surface);
   border-radius: var(--radius-lg); /* fully rounded — "soft" UI feel */
 }
 .dep-node--tier-frontend::before {
@@ -140,7 +142,7 @@
 }
 
 .dep-node--tier-backend {
-  background: linear-gradient(180deg, rgba(139, 124, 246, 0.10), rgba(139, 124, 246, 0.03));
+  background: linear-gradient(180deg, rgba(139, 124, 246, 0.10), rgba(139, 124, 246, 0.03)), var(--color-surface);
   /* squared-off left edge distinguishes the silhouette at a glance */
   border-radius: 2px var(--radius-md) var(--radius-md) 2px;
 }

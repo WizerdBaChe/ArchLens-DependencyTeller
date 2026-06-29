@@ -33,6 +33,8 @@ interface GraphState {
   searchQuery: string;
   tierFilter: TierFilter;
   sidePanelTab: "node" | "cycles" | "warnings" | "hotspots" | "violations";
+  /** Edge routing: "bezier" = original soft curves, "smoothstep" = orthogonal. */
+  edgeStyle: EdgeStyle;
   /** Directory groups currently collapsed into a single aggregate node. */
   collapsedGroups: Set<string>;
 
@@ -44,11 +46,21 @@ interface GraphState {
   setSearchQuery: (query: string) => void;
   setTierFilter: (filter: TierFilter) => void;
   setSidePanelTab: (tab: "node" | "cycles" | "warnings" | "hotspots" | "violations") => void;
+  setEdgeStyle: (style: EdgeStyle) => void;
   toggleGroupCollapsed: (group: string) => void;
   collapseAllGroups: () => void;
   expandAllGroups: () => void;
   reset: () => void;
 }
+
+export type EdgeStyle = "bezier" | "smoothstep";
+
+/**
+ * Above this node count, the first render auto-collapses every foldable
+ * directory so a large graph opens as a readable overview instead of a hairball.
+ * The user can expand from there. Smaller graphs open fully expanded as before.
+ */
+export const AUTO_COLLAPSE_NODE_THRESHOLD = 40;
 
 const initialState = {
   status: "idle" as AnalysisStatus,
@@ -62,6 +74,7 @@ const initialState = {
   searchQuery: "",
   tierFilter: "all" as TierFilter,
   sidePanelTab: "cycles" as const,
+  edgeStyle: "bezier" as EdgeStyle,
   collapsedGroups: new Set<string>(),
 };
 
@@ -76,6 +89,12 @@ export const useGraphStore = create<GraphState>((set) => ({
     setTimeout(() => {
       const result = analyzeProject({ projectName, files, alias, contract });
       if (result.ok) {
+        // Large graphs open collapsed-to-overview so they aren't an unreadable
+        // hairball on first paint; small graphs open fully expanded as before.
+        const autoCollapsed =
+          result.graph.nodes.length > AUTO_COLLAPSE_NODE_THRESHOLD
+            ? selectCollapsibleGroups({ graph: result.graph } as GraphState)
+            : new Set<string>();
         set({
           status: "ready",
           projectName,
@@ -86,7 +105,7 @@ export const useGraphStore = create<GraphState>((set) => ({
           selectedGroup: null,
           selectedCycleIndex: null,
           sidePanelTab: result.graph.cycles.length > 0 ? "cycles" : "warnings",
-          collapsedGroups: new Set<string>(),
+          collapsedGroups: autoCollapsed,
         });
       } else {
         set({ status: "error", error: result.error, graph: null, summary: null });
@@ -118,6 +137,8 @@ export const useGraphStore = create<GraphState>((set) => ({
     })),
 
   setSidePanelTab: (tab) => set({ sidePanelTab: tab }),
+
+  setEdgeStyle: (style) => set({ edgeStyle: style }),
 
   toggleGroupCollapsed: (group) =>
     set((state) => {

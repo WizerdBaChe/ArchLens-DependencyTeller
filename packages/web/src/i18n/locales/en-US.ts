@@ -148,6 +148,12 @@ export interface Locale {
   langSwitcher: {
     ariaLabel: string;
   };
+  edgeStyle: {
+    label: string;
+    curved: string;
+    orthogonal: string;
+    hint: string;
+  };
   collapse: {
     collapseAll: string;
     expandAll: string;
@@ -323,6 +329,12 @@ const enUS: Locale = {
   },
   langSwitcher: {
     ariaLabel: "Switch language",
+  },
+  edgeStyle: {
+    label: "Edges",
+    curved: "Curved",
+    orthogonal: "Orthogonal",
+    hint: "Toggle edge routing: curved bezier or orthogonal right-angles",
   },
   collapse: {
     collapseAll: "Collapse all",

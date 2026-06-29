@@ -88,6 +88,7 @@ export function GraphView() {
   const filteredIds = useGraphStore(selectFilteredNodeIds);
   const tierVisibleIds = useGraphStore(selectTierVisibleNodeIds);
   const violatingEdgeIds = useGraphStore(selectViolatingEdgeIds);
+  const edgeStyle = useGraphStore((s) => s.edgeStyle);
 
   const [flowNodes, setFlowNodes, onNodesChange] = useNodesState<DependencyNodeData | GroupNodeData>([]);
   const [flowEdges, setFlowEdges, onEdgesChange] = useEdgesState([]);
@@ -244,6 +245,9 @@ export function GraphView() {
         id: e.id,
         source: e.from,
         target: e.to,
+        // "smoothstep" routes orthogonally (right-angle bends), "default" is the
+        // original soft bezier curve. User-toggleable via CollapseControls.
+        type: edgeStyle === "smoothstep" ? "smoothstep" : "default",
         animated: e.isCircular,
         style: {
           stroke,
@@ -265,7 +269,7 @@ export function GraphView() {
       hasFitRef.current = true;
       requestAnimationFrame(() => flowInstanceRef.current?.fitView({ padding: 0.2, duration: 250 }));
     }
-  }, [display, layout, focusSet, selectedDisplayId, collapsibleGroups, violatingEdgeIds, setFlowNodes, setFlowEdges, toggleGroupCollapsed]);
+  }, [display, layout, focusSet, selectedDisplayId, collapsibleGroups, violatingEdgeIds, edgeStyle, setFlowNodes, setFlowEdges, toggleGroupCollapsed]);
 
   if (!graph) return null;
 
