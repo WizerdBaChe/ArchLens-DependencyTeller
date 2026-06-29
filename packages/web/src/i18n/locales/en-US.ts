@@ -120,6 +120,8 @@ export interface Locale {
     titleCsv: string;
     titlePng: string;
     titleSvg: string;
+    exportBriefing: string;
+    titleBriefing: string;
   };
   depNode: {
     titleFanIn: string;
@@ -294,6 +296,8 @@ const enUS: Locale = {
     titleCsv: "Export node/edge summary as CSV",
     titlePng: "Export the graph image as PNG",
     titleSvg: "Export the graph image as SVG (vector)",
+    exportBriefing: "Export AI briefing (Markdown)",
+    titleBriefing: "Compact contract + violations + hotspots for AI",
   },
   depNode: {
     titleFanIn: "Fan-in (depended on by)",

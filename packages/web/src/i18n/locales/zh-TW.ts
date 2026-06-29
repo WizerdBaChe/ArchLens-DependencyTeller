@@ -161,6 +161,8 @@ const zhTW: Locale = {
     titleCsv: "將節點／邊摘要匯出為 CSV",
     titlePng: "將圖表畫面匯出為 PNG 圖片",
     titleSvg: "將圖表畫面匯出為 SVG 向量圖",
+    exportBriefing: "匯出 AI 簡報（Markdown）",
+    titleBriefing: "給 AI 的精簡合約＋違規＋熱點摘要",
   },
 
   // Dependency node tooltips

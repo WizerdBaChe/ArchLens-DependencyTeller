@@ -3,6 +3,7 @@ import { useGraphStore } from "../store/useGraphStore";
 import { downloadGraphAsJson } from "./exportJson";
 import { downloadGraphAsCsv } from "./exportCsv";
 import { downloadGraphAsPng, downloadGraphAsSvg } from "./exportImage";
+import { downloadBriefing } from "./exportBriefing";
 import { useLocale } from "../i18n";
 import "./ExportMenu.css";
 
@@ -78,6 +79,9 @@ export function ExportMenu() {
           </button>
           <button type="button" role="menuitem" onClick={() => run(() => captureImage("svg"))} disabled={capturing} title={t.exportMenu.titleSvg}>
             {t.exportMenu.exportSvg}
+          </button>
+          <button type="button" role="menuitem" onClick={() => run(() => downloadBriefing(graph))} title={t.exportMenu.titleBriefing}>
+            {t.exportMenu.exportBriefing}
           </button>
         </div>
       )}
