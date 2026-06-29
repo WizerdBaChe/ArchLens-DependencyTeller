@@ -2,10 +2,11 @@ import { useGraphStore } from "../store/useGraphStore";
 import { NodeDetailPanel } from "./NodeDetailPanel";
 import { CycleListPanel } from "./CycleListPanel";
 import { WarningListPanel } from "./WarningListPanel";
+import { HotspotsPanel } from "./HotspotsPanel";
 import { useLocale } from "../i18n";
 import "./SidePanel.css";
 
-type TabId = "node" | "cycles" | "warnings";
+type TabId = "node" | "cycles" | "warnings" | "hotspots" | "violations";
 
 export function SidePanel() {
   const tab = useGraphStore((s) => s.sidePanelTab);
@@ -17,6 +18,8 @@ export function SidePanel() {
     { id: "node", label: t.sidePanel.tabNode },
     { id: "cycles", label: t.sidePanel.tabCycles },
     { id: "warnings", label: t.sidePanel.tabWarnings },
+    { id: "hotspots", label: t.sidePanel.tabHotspots },
+    { id: "violations", label: t.sidePanel.tabViolations },
   ];
 
   const countFor = (id: TabId) => {
@@ -49,6 +52,12 @@ export function SidePanel() {
         {tab === "node" && <NodeDetailPanel />}
         {tab === "cycles" && <CycleListPanel />}
         {tab === "warnings" && <WarningListPanel />}
+        {tab === "hotspots" && <HotspotsPanel />}
+        {tab === "violations" && (
+          <div className="violations-placeholder">
+            <p>{t.violations.empty}</p>
+          </div>
+        )}
       </div>
     </aside>
   );

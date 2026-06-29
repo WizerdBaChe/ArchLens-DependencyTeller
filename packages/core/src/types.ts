@@ -78,6 +78,8 @@ export interface NodeMetrics {
   isEntry: boolean;
   isLeaf: boolean;
   isCircular: boolean;
+  /** fan-in 0 AND fan-out 0 — imported by nobody, imports nothing internal. */
+  isIsolated: boolean;
 }
 
 export interface GraphNode {
@@ -104,9 +106,8 @@ export interface GraphEdge {
   kind: EdgeKind;
   isCircular: boolean;
   /**
-   * Whether this edge crosses the frontend/backend boundary. Reserved for the
-   * future cross-tier detection feature (fetch ↔ route); always undefined/false
-   * for now, so the UI does not draw it specially yet.
+   * Whether this edge crosses the frontend/backend tier boundary.
+   * Computed in index.ts via the tier lookup built after buildGraph().
    */
   crossTier?: boolean;
 }

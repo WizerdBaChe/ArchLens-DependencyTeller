@@ -1,0 +1,109 @@
+.hotspots-panel {
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.hotspots-panel--empty {
+  padding: var(--space-5) var(--space-4);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.hotspots-panel__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.hotspots-panel__title {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.hotspots-panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  counter-reset: hotspot-rank;
+}
+
+.hotspots-panel__item {
+  counter-increment: hotspot-rank;
+}
+
+.hotspots-panel__node-btn {
+  width: 100%;
+  text-align: left;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.hotspots-panel__node-btn::before {
+  content: counter(hotspot-rank);
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  min-width: 1.5ch;
+  text-align: right;
+}
+
+.hotspots-panel__node-btn:hover {
+  border-color: var(--color-accent-cyan);
+}
+
+.hotspots-panel__node-path {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text);
+  word-break: break-all;
+  text-align: left;
+}
+
+.hotspots-panel__count {
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--color-accent-cyan);
+  background: rgba(0, 180, 180, 0.1);
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.hotspots-panel__count--inline {
+  background: none;
+  padding: 0;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.hotspots-panel__item--isolated .hotspots-panel__node-btn {
+  border-style: dashed;
+}
+
+.hotspots-panel__item--isolated .hotspots-panel__node-btn::before {
+  content: "—";
+}
+
+.hotspots-panel__item--isolated .hotspots-panel__node-path {
+  color: var(--color-text-secondary);
+}

@@ -67,7 +67,7 @@ export function buildGraph(files: InputFile[], alias: AliasConfig | undefined): 
         // safe default so a file that fails to parse still has a valid tier.
         tier: "unknown" as const,
         tierReason: "fallback-unknown" as const,
-        metrics: { fanin: 0, fanout: 0, isEntry: false, isLeaf: false, isCircular: false },
+        metrics: { fanin: 0, fanout: 0, isEntry: false, isLeaf: false, isCircular: false, isIsolated: false },
       },
     ])
   );

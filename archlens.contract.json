@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "description": "ArchLens Dependency 自身的架構合約範例。對應 DEV_README 的鐵律：packages/core（純分析引擎）永不依賴 packages/web（React UI）。目前為文件樣本 / 未來 dogfood 目標 —— 待 PSM A5 的合約 loader 落地後才會被實際檢查。",
+  "layers": {
+    "core": ["packages/core/*"],
+    "web": ["packages/web/*"]
+  },
+  "rules": [
+    {
+      "type": "forbid",
+      "from": "core",
+      "to": "web",
+      "message": "packages/core 是零 UI 依賴的純引擎，不得 import packages/web（會破壞 CLI / 編輯器擴充的可重用性）。"
+    }
+  ]
+}

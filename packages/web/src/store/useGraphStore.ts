@@ -31,7 +31,7 @@ interface GraphState {
   selectedCycleIndex: number | null;
   searchQuery: string;
   tierFilter: TierFilter;
-  sidePanelTab: "node" | "cycles" | "warnings";
+  sidePanelTab: "node" | "cycles" | "warnings" | "hotspots" | "violations";
   /** Directory groups currently collapsed into a single aggregate node. */
   collapsedGroups: Set<string>;
 
@@ -42,7 +42,7 @@ interface GraphState {
   selectCycle: (index: number | null) => void;
   setSearchQuery: (query: string) => void;
   setTierFilter: (filter: TierFilter) => void;
-  setSidePanelTab: (tab: "node" | "cycles" | "warnings") => void;
+  setSidePanelTab: (tab: "node" | "cycles" | "warnings" | "hotspots" | "violations") => void;
   toggleGroupCollapsed: (group: string) => void;
   collapseAllGroups: () => void;
   expandAllGroups: () => void;
@@ -219,6 +219,45 @@ export function selectCollapsibleGroups(state: GraphState): Set<string> {
     counts.set(n.group, (counts.get(n.group) ?? 0) + 1);
   }
   return new Set([...counts].filter(([, c]) => c >= 2).map(([g]) => g));
+}
+
+// ---------------------------------------------------------------------------
+// Hotspots — A1 (承重牆排行)
+// ---------------------------------------------------------------------------
+
+export const HOTSPOTS_TOP_N = 10;
+
+export interface HotspotEntry {
+  id: string;
+  fanin: number;
+  fanout: number;
+}
+
+/** Top-N by fan-in and by fan-out, plus the isolated-file list. Pure view over nodes. */
+export function selectHotspots(state: GraphState): {
+  byFanIn: HotspotEntry[];
+  byFanOut: HotspotEntry[];
+  isolated: string[];
+} {
+  if (!state.graph) return { byFanIn: [], byFanOut: [], isolated: [] };
+  const ns = state.graph.nodes;
+  const toEntry = (n: GraphNode): HotspotEntry => ({
+    id: n.id,
+    fanin: n.metrics.fanin,
+    fanout: n.metrics.fanout,
+  });
+  const byFanIn = [...ns]
+    .filter((n) => n.metrics.fanin > 0)
+    .sort((a, b) => b.metrics.fanin - a.metrics.fanin)
+    .slice(0, HOTSPOTS_TOP_N)
+    .map(toEntry);
+  const byFanOut = [...ns]
+    .filter((n) => n.metrics.fanout > 0)
+    .sort((a, b) => b.metrics.fanout - a.metrics.fanout)
+    .slice(0, HOTSPOTS_TOP_N)
+    .map(toEntry);
+  const isolated = ns.filter((n) => n.metrics.isIsolated).map((n) => n.id);
+  return { byFanIn, byFanOut, isolated };
 }
 
 /** The distinct tiers present in the current graph (used to decide whether to show tier UI). */

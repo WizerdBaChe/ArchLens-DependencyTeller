@@ -87,6 +87,7 @@ export function analyzeProject(input: ProjectInput): AnalysisResult {
           isEntry: fin === 0 && fout > 0,
           isLeaf: fout === 0 && fin > 0,
           isCircular: circularNodeIds.has(node.id),
+          isIsolated: fin === 0 && fout === 0,
         },
       };
     });

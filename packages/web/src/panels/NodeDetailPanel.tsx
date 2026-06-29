@@ -43,7 +43,9 @@ export function NodeDetailPanel() {
     );
   }
 
-  const roleLabel = node.metrics.isCircular
+  const roleLabel = node.metrics.isIsolated
+    ? t.nodeDetail.roleIsolated
+    : node.metrics.isCircular
     ? t.nodeDetail.roleCircular
     : node.metrics.isEntry
     ? t.nodeDetail.roleEntry

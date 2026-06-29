@@ -43,6 +43,10 @@ export interface Locale {
     warnings: string;
     titleCycles: string;
     titleWarnings: string;
+    hotspots: string;
+    titleHotspots: string;
+    violations: string;
+    titleViolations: string;
     ariaLabel: string;
   };
   sidePanel: {
@@ -50,12 +54,15 @@ export interface Locale {
     tabNode: string;
     tabCycles: string;
     tabWarnings: string;
+    tabHotspots: string;
+    tabViolations: string;
   };
   nodeDetail: {
     empty: string;
     fanIn: string;
     fanOut: string;
     role: string;
+    roleIsolated: string;
     roleCircular: string;
     roleEntry: string;
     roleLeaf: string;
@@ -85,6 +92,17 @@ export interface Locale {
   warningList: {
     empty: string;
     codes: Record<string, string>;
+  };
+  hotspots: {
+    fanInTitle: string;
+    fanOutTitle: string;
+    empty: string;
+    isolatedCount: (n: number) => string;
+    isolatedTitle: string;
+  };
+  violations: {
+    empty: string;
+    rule: (from: string, to: string) => string;
   };
   search: {
     placeholder: string;
@@ -193,6 +211,10 @@ const enUS: Locale = {
     warnings: "warnings",
     titleCycles: "View circular dependencies",
     titleWarnings: "View warnings",
+    hotspots: "hotspots",
+    titleHotspots: "View structural hotspots (load-bearing modules)",
+    violations: "violations",
+    titleViolations: "View contract violations",
     ariaLabel: "Analysis summary",
   },
   sidePanel: {
@@ -200,12 +222,15 @@ const enUS: Locale = {
     tabNode: "Node",
     tabCycles: "Cycles",
     tabWarnings: "Warnings",
+    tabHotspots: "Hotspots",
+    tabViolations: "Violations",
   },
   nodeDetail: {
     empty: "Click any node in the graph to see its upstream and downstream dependencies.",
     fanIn: "Fan-in",
     fanOut: "Fan-out",
     role: "Role",
+    roleIsolated: "Isolated",
     roleCircular: "In a cycle",
     roleEntry: "Entry point",
     roleLeaf: "Leaf",
@@ -240,6 +265,17 @@ const enUS: Locale = {
       EMPTY_FILE_SET: "Empty input",
       DUPLICATE_PATH: "Duplicate path",
     },
+  },
+  hotspots: {
+    fanInTitle: "Most depended-on (fan-in)",
+    fanOutTitle: "Most dependencies (fan-out)",
+    empty: "No nodes to rank.",
+    isolatedCount: (n) => `Isolated files: ${n}`,
+    isolatedTitle: "Isolated files",
+  },
+  violations: {
+    empty: "No contract loaded, or no violations. ✓",
+    rule: (from, to) => `${from} → ${to} not allowed`,
   },
   search: {
     placeholder: "Search files by path…",

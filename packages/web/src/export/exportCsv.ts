@@ -7,9 +7,9 @@ function csvEscape(value: string | number | boolean): string {
 }
 
 export function downloadGraphAsCsv(graph: NormalizedGraph): void {
-  const nodeHeader = ["id", "group", "tier", "tierReason", "fanin", "fanout", "isEntry", "isLeaf", "isCircular"];
+  const nodeHeader = ["id", "group", "tier", "tierReason", "fanin", "fanout", "isEntry", "isLeaf", "isCircular", "isIsolated"];
   const nodeRows = graph.nodes.map((n) =>
-    [n.id, n.group, n.tier, n.tierReason, n.metrics.fanin, n.metrics.fanout, n.metrics.isEntry, n.metrics.isLeaf, n.metrics.isCircular]
+    [n.id, n.group, n.tier, n.tierReason, n.metrics.fanin, n.metrics.fanout, n.metrics.isEntry, n.metrics.isLeaf, n.metrics.isCircular, n.metrics.isIsolated]
       .map(csvEscape)
       .join(",")
   );
