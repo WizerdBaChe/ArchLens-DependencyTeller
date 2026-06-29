@@ -141,6 +141,7 @@ export interface Locale {
     tierShared: string;
     tierUnknown: string;
     crossTierEdge: string;
+    violationEdge: string;
   };
   langSwitcher: {
     ariaLabel: string;
@@ -314,6 +315,7 @@ const enUS: Locale = {
     tierShared: "Shared",
     tierUnknown: "Unclassified (dashed)",
     crossTierEdge: "Cross-tier edge (frontend ↔ backend)",
+    violationEdge: "Contract violation (forbidden import)",
   },
   langSwitcher: {
     ariaLabel: "Switch language",

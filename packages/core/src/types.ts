@@ -154,12 +154,25 @@ export interface ProjectMeta {
   fileCount: number;
 }
 
+/** A single contract-rule violation found in the graph. */
+export interface Violation {
+  edgeId: string;
+  from: string;
+  to: string;
+  fromLayer: string;
+  toLayer: string;
+  ruleIndex: number;
+  message: string;
+}
+
 export interface NormalizedGraph {
   project: ProjectMeta;
   nodes: GraphNode[];
   edges: GraphEdge[];
   cycles: Cycle[];
   warnings: GraphWarning[];
+  /** Contract violations. Empty array when no contract is loaded. */
+  violations: Violation[];
 }
 
 // ---------------------------------------------------------------------------

@@ -188,6 +188,7 @@ const zhTW: Locale = {
     tierShared: "共用",
     tierUnknown: "未分類（虛線）",
     crossTierEdge: "跨層級邊（前端 ↔ 後端）",
+    violationEdge: "合約違規（被禁止的 import）",
   },
 
   // Language switcher

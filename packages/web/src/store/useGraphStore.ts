@@ -4,6 +4,7 @@ import type {
   AliasConfig,
   AnalysisError,
   AnalysisSummary,
+  ArchitectureContract,
   GraphNode,
   ImpactTrace,
   InputFile,
@@ -36,7 +37,7 @@ interface GraphState {
   collapsedGroups: Set<string>;
 
   // actions
-  runAnalysis: (projectName: string, files: InputFile[], alias: AliasConfig) => void;
+  runAnalysis: (projectName: string, files: InputFile[], alias: AliasConfig, contract?: ArchitectureContract) => void;
   selectNode: (nodeId: string | null) => void;
   selectGroup: (group: string | null) => void;
   selectCycle: (index: number | null) => void;
@@ -67,13 +68,13 @@ const initialState = {
 export const useGraphStore = create<GraphState>((set) => ({
   ...initialState,
 
-  runAnalysis: (projectName, files, alias) => {
+  runAnalysis: (projectName, files, alias, contract) => {
     set({ status: "analyzing", error: null });
 
     // Analysis is synchronous CPU work; yield to the next tick first so the
     // "analyzing" state actually paints before the main thread blocks.
     setTimeout(() => {
-      const result = analyzeProject({ projectName, files, alias });
+      const result = analyzeProject({ projectName, files, alias, contract });
       if (result.ok) {
         set({
           status: "ready",
@@ -258,6 +259,11 @@ export function selectHotspots(state: GraphState): {
     .map(toEntry);
   const isolated = ns.filter((n) => n.metrics.isIsolated).map((n) => n.id);
   return { byFanIn, byFanOut, isolated };
+}
+
+/** Edge ids that violate at least one contract rule. Empty set when no contract loaded. */
+export function selectViolatingEdgeIds(state: GraphState): Set<string> {
+  return new Set((state.graph?.violations ?? []).map((v) => v.edgeId));
 }
 
 /** The distinct tiers present in the current graph (used to decide whether to show tier UI). */

@@ -3,6 +3,7 @@ import { NodeDetailPanel } from "./NodeDetailPanel";
 import { CycleListPanel } from "./CycleListPanel";
 import { WarningListPanel } from "./WarningListPanel";
 import { HotspotsPanel } from "./HotspotsPanel";
+import { ViolationsPanel } from "./ViolationsPanel";
 import { useLocale } from "../i18n";
 import "./SidePanel.css";
 
@@ -12,6 +13,7 @@ export function SidePanel() {
   const tab = useGraphStore((s) => s.sidePanelTab);
   const setTab = useGraphStore((s) => s.setSidePanelTab);
   const summary = useGraphStore((s) => s.summary);
+  const graph = useGraphStore((s) => s.graph);
   const { t } = useLocale();
 
   const TABS: { id: TabId; label: string }[] = [
@@ -26,6 +28,7 @@ export function SidePanel() {
     if (!summary) return undefined;
     if (id === "cycles") return summary.totalCycles;
     if (id === "warnings") return summary.totalWarnings;
+    if (id === "violations") return graph?.violations?.length ?? 0;
     return undefined;
   };
 
@@ -53,11 +56,7 @@ export function SidePanel() {
         {tab === "cycles" && <CycleListPanel />}
         {tab === "warnings" && <WarningListPanel />}
         {tab === "hotspots" && <HotspotsPanel />}
-        {tab === "violations" && (
-          <div className="violations-placeholder">
-            <p>{t.violations.empty}</p>
-          </div>
-        )}
+        {tab === "violations" && <ViolationsPanel />}
       </div>
     </aside>
   );

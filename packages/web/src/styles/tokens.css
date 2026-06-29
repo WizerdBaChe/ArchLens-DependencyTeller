@@ -30,6 +30,7 @@
   --color-accent-amber-dim: #7a5318;
   --color-accent-violet: #8b7cf6;   /* entry nodes */
   --color-accent-magenta: #d6409f;  /* cross-tier (frontend↔backend boundary) edges */
+  --color-accent-red: #e5484d;      /* contract violation edges (highest priority) */
   --color-danger: #f0506e;
 
   /* Color — UI-chrome accent（外殼互動：按鈕 hover/active、tab、焦點環、上傳區、
@@ -83,6 +84,7 @@
   --color-accent-amber-dim: #fde2b3;
   --color-accent-violet: #6d28d9;   /* entry */
   --color-accent-magenta: #be185d;  /* cross-tier */
+  --color-accent-red: #be123c;      /* contract violation */
   --color-danger: #dc2626;
 }
 .al-theme-hacker {
@@ -93,5 +95,6 @@
   --color-accent-amber-dim: #4a3410;
   --color-accent-violet: #b69bff;
   --color-accent-magenta: #ff7ad1;
+  --color-accent-red: #ff5a5a;      /* contract violation */
   --color-danger: #ff6b5b;
 }

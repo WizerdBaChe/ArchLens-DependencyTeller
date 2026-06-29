@@ -18,6 +18,7 @@ import {
   selectFilteredNodeIds,
   selectTierVisibleNodeIds,
   selectCollapsibleGroups,
+  selectViolatingEdgeIds,
 } from "../store/useGraphStore";
 import { computeLayout, NODE_DIMENSIONS, GROUP_DIMENSIONS } from "./layout";
 import { DependencyNode, type DependencyNodeData } from "./nodeTypes/DependencyNode";
@@ -86,6 +87,7 @@ export function GraphView() {
   const toggleGroupCollapsed = useGraphStore((s) => s.toggleGroupCollapsed);
   const filteredIds = useGraphStore(selectFilteredNodeIds);
   const tierVisibleIds = useGraphStore(selectTierVisibleNodeIds);
+  const violatingEdgeIds = useGraphStore(selectViolatingEdgeIds);
 
   const [flowNodes, setFlowNodes, onNodesChange] = useNodesState<DependencyNodeData | GroupNodeData>([]);
   const [flowEdges, setFlowEdges, onEdgesChange] = useEdgesState([]);
@@ -221,14 +223,23 @@ export function GraphView() {
 
     const nextEdges: Edge[] = display.edges.map((e) => {
       const isFocused = focusSet ? focusSet.has(e.from) && focusSet.has(e.to) : true;
-      // Edge colour priority: circular (amber, hardest problem) > cross-tier
-      // (magenta, the frontend↔backend boundary crossing) > normal (cyan dim).
-      const stroke = e.isCircular
+      // Edge colour priority: violation (red, contract breach) > circular (amber) >
+      // cross-tier (magenta, frontend↔backend) > normal (cyan dim).
+      const isViolating = violatingEdgeIds.has(e.id);
+      const stroke = isViolating
+        ? "var(--color-accent-red)"
+        : e.isCircular
         ? "var(--color-accent-amber)"
         : e.crossTier
         ? "var(--color-accent-magenta)"
         : "var(--color-accent-cyan-dim)";
-      const markerColor = e.isCircular ? "#f5a524" : e.crossTier ? "#d6409f" : "#2c6e69";
+      const markerColor = isViolating
+        ? "#e5484d"
+        : e.isCircular
+        ? "#f5a524"
+        : e.crossTier
+        ? "#d6409f"
+        : "#2c6e69";
       return {
         id: e.id,
         source: e.from,
@@ -236,8 +247,8 @@ export function GraphView() {
         animated: e.isCircular,
         style: {
           stroke,
-          strokeWidth: e.isCircular || e.crossTier ? 2 : 1.25,
-          strokeDasharray: e.isCircular ? "6 4" : e.crossTier ? "2 3" : undefined,
+          strokeWidth: isViolating || e.isCircular || e.crossTier ? 2 : 1.25,
+          strokeDasharray: isViolating ? "4 2" : e.isCircular ? "6 4" : e.crossTier ? "2 3" : undefined,
           opacity: isFocused ? 1 : 0.12,
         },
         markerEnd: { type: MarkerType.ArrowClosed, color: markerColor, width: 14, height: 14 },
@@ -254,7 +265,7 @@ export function GraphView() {
       hasFitRef.current = true;
       requestAnimationFrame(() => flowInstanceRef.current?.fitView({ padding: 0.2, duration: 250 }));
     }
-  }, [display, layout, focusSet, selectedDisplayId, collapsibleGroups, setFlowNodes, setFlowEdges, toggleGroupCollapsed]);
+  }, [display, layout, focusSet, selectedDisplayId, collapsibleGroups, violatingEdgeIds, setFlowNodes, setFlowEdges, toggleGroupCollapsed]);
 
   if (!graph) return null;
 
