@@ -20,6 +20,8 @@ import type {
 } from "./types.js";
 
 export * from "./types.js";
+export { parseContract } from "./validators/parseContract.js";
+export type { ContractParseResult } from "./validators/parseContract.js";
 
 /**
  * Runs the full pipeline: validate → parse → resolve → build graph →

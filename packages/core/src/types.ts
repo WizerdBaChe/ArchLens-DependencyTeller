@@ -28,6 +28,23 @@ export type SupportedLanguage = "ts" | "tsx" | "js" | "jsx" | "vue" | "py";
 /** Alias map as authored by the user, e.g. { "@/*": "src/*" } (tsconfig-style). */
 export type AliasConfig = Record<string, string>;
 
+// ---------------------------------------------------------------------------
+// Architecture Contract (A4) — declarable rule set for the dependency graph
+// ---------------------------------------------------------------------------
+
+export interface ContractRule {
+  type: "forbid";       // MVP: forbid only; "allow" reserved for future use
+  from: string;         // layer name (key in ArchitectureContract.layers)
+  to: string;           // layer name
+  message?: string;     // human-readable explanation surfaced on violation
+}
+
+export interface ArchitectureContract {
+  version: string;                        // schema version — MVP "1.0"
+  layers: Record<string, string[]>;       // layerName -> path globs (supports * wildcard)
+  rules: ContractRule[];
+}
+
 export interface ProjectInput {
   projectName: string;
   files: InputFile[];
@@ -49,6 +66,8 @@ export interface ProjectInput {
   excludeGlobs?: string[];
   /** @deprecated Use `includePatterns` instead. */
   includeGlobs?: string[];
+  /** Optional architecture contract. When present, analyzeProject populates graph.violations. */
+  contract?: ArchitectureContract;
 }
 
 // ---------------------------------------------------------------------------

@@ -6,6 +6,7 @@
  * across the pipeline.
  */
 import type { GraphWarning, ProjectInput } from "../types.js";
+import { matchesPattern } from "../util/matchPattern.js";
 
 export interface ValidationOutcome {
   /** Files worth attempting to parse (supported extensions, deduplicated). */
@@ -14,12 +15,6 @@ export interface ValidationOutcome {
 }
 
 const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs", ".vue", ".py", ".pyi"];
-
-/** Matches a path against a pattern that supports `*` as a wildcard. */
-function matchesPattern(path: string, pattern: string): boolean {
-  const regexSource = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
-  return new RegExp(`^${regexSource}$`).test(path) || path.includes(pattern.replace(/\*/g, ""));
-}
 
 export function validateInput(input: ProjectInput): ValidationOutcome {
   const warnings: GraphWarning[] = [];
