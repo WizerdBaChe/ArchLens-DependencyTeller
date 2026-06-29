@@ -1,0 +1,26 @@
+{
+  "name": "@archlens/cli",
+  "version": "0.1.0",
+  "description": "CLI gate for ArchLens Dependency — run architecture contract checks from CI or pre-commit hooks.",
+  "license": "CC-BY-ND-4.0",
+  "type": "module",
+  "bin": {
+    "archlens-dep": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@archlens/core": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.5.4",
+    "vitest": "^4.1.9"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
