@@ -1,6 +1,6 @@
 .group-node {
-  width: 220px;
-  min-height: 64px;
+  width: 200px; /* matches NODE/GROUP_DIMENSIONS so groups read as the node family */
+  min-height: 56px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -13,6 +13,10 @@
   cursor: pointer;
   transition: opacity var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out),
     box-shadow var(--duration-base) var(--ease-out);
+  /* Tier accent bar drawn as an inset shadow (hugs the rounded corner exactly),
+     mirroring the dep-node role bar. */
+  --tier-accent: var(--color-text-tertiary);
+  box-shadow: inset 4px 0 0 0 var(--tier-accent);
 }
 
 .group-node__icon {
@@ -72,36 +76,31 @@
   border: none;
 }
 
-/* ---- Tier accent: a left stripe matching the dep-node tier language ---- */
-.group-node::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  border-top-left-radius: inherit;
-  border-bottom-left-radius: inherit;
-  background: var(--color-text-tertiary);
+/* ---- Tier accent: a left bar + silhouette matching the dep-node tier language.
+   A single-tier group also borrows that tier's corner radius so a collapsed
+   frontend folder looks like a big frontend node (and likewise for backend). ---- */
+.group-node--tier-frontend {
+  --tier-accent: var(--color-accent-cyan);
+  border-radius: var(--radius-lg);
 }
-.group-node--tier-frontend::before {
-  background: var(--color-accent-cyan);
+.group-node--tier-backend {
+  --tier-accent: var(--color-accent-violet);
+  border-radius: 2px var(--radius-md) var(--radius-md) 2px;
 }
-.group-node--tier-backend::before {
-  background: var(--color-accent-violet);
-}
-.group-node--tier-mixed::before {
-  background: linear-gradient(180deg, var(--color-accent-cyan), var(--color-accent-violet));
+.group-node--tier-mixed {
+  /* inset shadows can't be a gradient — a solid cyan reads as "spans tiers" well
+     enough, and the legend carries the precise meaning. */
+  --tier-accent: var(--color-accent-cyan);
 }
 
 .group-node--circular {
   border-color: var(--color-accent-amber);
-  box-shadow: 0 0 0 1px rgba(245, 165, 36, 0.25);
+  box-shadow: inset 4px 0 0 0 var(--color-accent-amber);
 }
 
 .group-node.is-selected {
   border-color: var(--color-accent-cyan);
-  box-shadow: 0 0 0 2px rgba(79, 209, 197, 0.35);
+  box-shadow: inset 4px 0 0 0 var(--tier-accent), 0 0 0 2px rgba(79, 209, 197, 0.35);
 }
 
 .group-node.is-highlighted {

@@ -28,6 +28,23 @@ export type SupportedLanguage = "ts" | "tsx" | "js" | "jsx" | "vue" | "py";
 /** Alias map as authored by the user, e.g. { "@/*": "src/*" } (tsconfig-style). */
 export type AliasConfig = Record<string, string>;
 
+// ---------------------------------------------------------------------------
+// Architecture Contract (A4) — declarable rule set for the dependency graph
+// ---------------------------------------------------------------------------
+
+export interface ContractRule {
+  type: "forbid";       // MVP: forbid only; "allow" reserved for future use
+  from: string;         // layer name (key in ArchitectureContract.layers)
+  to: string;           // layer name
+  message?: string;     // human-readable explanation surfaced on violation
+}
+
+export interface ArchitectureContract {
+  version: string;                        // schema version — MVP "1.0"
+  layers: Record<string, string[]>;       // layerName -> path globs (supports * wildcard)
+  rules: ContractRule[];
+}
+
 export interface ProjectInput {
   projectName: string;
   files: InputFile[];
@@ -49,6 +66,8 @@ export interface ProjectInput {
   excludeGlobs?: string[];
   /** @deprecated Use `includePatterns` instead. */
   includeGlobs?: string[];
+  /** Optional architecture contract. When present, analyzeProject populates graph.violations. */
+  contract?: ArchitectureContract;
 }
 
 // ---------------------------------------------------------------------------
@@ -78,6 +97,8 @@ export interface NodeMetrics {
   isEntry: boolean;
   isLeaf: boolean;
   isCircular: boolean;
+  /** fan-in 0 AND fan-out 0 — imported by nobody, imports nothing internal. */
+  isIsolated: boolean;
 }
 
 export interface GraphNode {
@@ -104,9 +125,8 @@ export interface GraphEdge {
   kind: EdgeKind;
   isCircular: boolean;
   /**
-   * Whether this edge crosses the frontend/backend boundary. Reserved for the
-   * future cross-tier detection feature (fetch ↔ route); always undefined/false
-   * for now, so the UI does not draw it specially yet.
+   * Whether this edge crosses the frontend/backend tier boundary.
+   * Computed in index.ts via the tier lookup built after buildGraph().
    */
   crossTier?: boolean;
 }
@@ -134,12 +154,25 @@ export interface ProjectMeta {
   fileCount: number;
 }
 
+/** A single contract-rule violation found in the graph. */
+export interface Violation {
+  edgeId: string;
+  from: string;
+  to: string;
+  fromLayer: string;
+  toLayer: string;
+  ruleIndex: number;
+  message: string;
+}
+
 export interface NormalizedGraph {
   project: ProjectMeta;
   nodes: GraphNode[];
   edges: GraphEdge[];
   cycles: Cycle[];
   warnings: GraphWarning[];
+  /** Contract violations. Empty array when no contract is loaded. */
+  violations: Violation[];
 }
 
 // ---------------------------------------------------------------------------

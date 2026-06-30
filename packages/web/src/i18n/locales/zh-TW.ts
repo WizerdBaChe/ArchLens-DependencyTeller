@@ -63,6 +63,10 @@ const zhTW: Locale = {
     warnings: "警告",
     titleCycles: "查看循環依賴",
     titleWarnings: "查看警告",
+    hotspots: "熱點",
+    titleHotspots: "檢視結構熱點（承重模組）",
+    violations: "違規",
+    titleViolations: "檢視架構合約違規",
     ariaLabel: "分析摘要",
   },
 
@@ -72,6 +76,8 @@ const zhTW: Locale = {
     tabNode: "節點",
     tabCycles: "循環",
     tabWarnings: "警告",
+    tabHotspots: "熱點",
+    tabViolations: "違規",
   },
 
   // Node detail panel
@@ -80,6 +86,7 @@ const zhTW: Locale = {
     fanIn: "扇入",
     fanOut: "扇出",
     role: "角色",
+    roleIsolated: "孤立",
     roleCircular: "存在於循環中",
     roleEntry: "入口點",
     roleLeaf: "末端節點",
@@ -120,6 +127,21 @@ const zhTW: Locale = {
     },
   },
 
+  // Hotspots panel
+  hotspots: {
+    fanInTitle: "最被依賴（扇入）",
+    fanOutTitle: "最依賴他人（扇出）",
+    empty: "無可排名的節點。",
+    isolatedCount: (n: number) => `孤立檔：${n}`,
+    isolatedTitle: "孤立檔",
+  },
+
+  // Violations panel
+  violations: {
+    empty: "未載入合約，或無違規。✓",
+    rule: (from: string, to: string) => `不允許 ${from} → ${to}`,
+  },
+
   // Search bar
   search: {
     placeholder: "依路徑搜尋檔案…",
@@ -139,6 +161,8 @@ const zhTW: Locale = {
     titleCsv: "將節點／邊摘要匯出為 CSV",
     titlePng: "將圖表畫面匯出為 PNG 圖片",
     titleSvg: "將圖表畫面匯出為 SVG 向量圖",
+    exportBriefing: "匯出 AI 簡報（Markdown）",
+    titleBriefing: "給 AI 的精簡合約＋違規＋熱點摘要",
   },
 
   // Dependency node tooltips
@@ -160,17 +184,24 @@ const zhTW: Locale = {
   legend: {
     title: "圖例",
     shapeAxis: "形狀／底色 = 層級",
-    borderAxis: "邊框 = 角色（入口／末端／循環）",
+    borderAxis: "左色條 = 角色（入口／循環；末端為一般節點）",
     tierFrontend: "前端",
     tierBackend: "後端",
     tierShared: "共用",
     tierUnknown: "未分類（虛線）",
     crossTierEdge: "跨層級邊（前端 ↔ 後端）",
+    violationEdge: "合約違規（被禁止的 import）",
   },
 
   // Language switcher
   langSwitcher: {
     ariaLabel: "切換語言",
+  },
+  edgeStyle: {
+    label: "連線",
+    curved: "弧線",
+    orthogonal: "正交",
+    hint: "切換連線走線方式：弧線（bezier）或正交直角",
   },
   collapse: {
     collapseAll: "全部摺疊",

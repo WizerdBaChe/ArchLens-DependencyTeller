@@ -4,6 +4,7 @@ import "./SummaryCards.css";
 
 export function SummaryCards() {
   const summary = useGraphStore((s) => s.summary);
+  const graph = useGraphStore((s) => s.graph);
   const selectCycle = useGraphStore((s) => s.selectCycle);
   const setSidePanelTab = useGraphStore((s) => s.setSidePanelTab);
   const { t } = useLocale();
@@ -11,6 +12,8 @@ export function SummaryCards() {
   if (!summary) return null;
 
   const hasCycles = summary.totalCycles > 0;
+  const violationCount = graph?.violations?.length ?? 0;
+  const hasViolations = violationCount > 0;
 
   return (
     <div className="summary-cards" role="group" aria-label={t.summary.ariaLabel}>
@@ -42,6 +45,15 @@ export function SummaryCards() {
       >
         <span className="summary-card__value">{summary.totalWarnings}</span>
         <span className="summary-card__label">{t.summary.warnings}</span>
+      </button>
+      <button
+        type="button"
+        className={`summary-card summary-card--button ${hasViolations ? "summary-card--violation" : ""}`}
+        onClick={() => setSidePanelTab("violations")}
+        title={t.summary.titleViolations}
+      >
+        <span className="summary-card__value">{violationCount}</span>
+        <span className="summary-card__label">{t.summary.violations}</span>
       </button>
     </div>
   );

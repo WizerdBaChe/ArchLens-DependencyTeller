@@ -43,6 +43,10 @@ export interface Locale {
     warnings: string;
     titleCycles: string;
     titleWarnings: string;
+    hotspots: string;
+    titleHotspots: string;
+    violations: string;
+    titleViolations: string;
     ariaLabel: string;
   };
   sidePanel: {
@@ -50,12 +54,15 @@ export interface Locale {
     tabNode: string;
     tabCycles: string;
     tabWarnings: string;
+    tabHotspots: string;
+    tabViolations: string;
   };
   nodeDetail: {
     empty: string;
     fanIn: string;
     fanOut: string;
     role: string;
+    roleIsolated: string;
     roleCircular: string;
     roleEntry: string;
     roleLeaf: string;
@@ -86,6 +93,17 @@ export interface Locale {
     empty: string;
     codes: Record<string, string>;
   };
+  hotspots: {
+    fanInTitle: string;
+    fanOutTitle: string;
+    empty: string;
+    isolatedCount: (n: number) => string;
+    isolatedTitle: string;
+  };
+  violations: {
+    empty: string;
+    rule: (from: string, to: string) => string;
+  };
   search: {
     placeholder: string;
     ariaLabel: string;
@@ -102,6 +120,8 @@ export interface Locale {
     titleCsv: string;
     titlePng: string;
     titleSvg: string;
+    exportBriefing: string;
+    titleBriefing: string;
   };
   depNode: {
     titleFanIn: string;
@@ -123,9 +143,16 @@ export interface Locale {
     tierShared: string;
     tierUnknown: string;
     crossTierEdge: string;
+    violationEdge: string;
   };
   langSwitcher: {
     ariaLabel: string;
+  };
+  edgeStyle: {
+    label: string;
+    curved: string;
+    orthogonal: string;
+    hint: string;
   };
   collapse: {
     collapseAll: string;
@@ -193,6 +220,10 @@ const enUS: Locale = {
     warnings: "warnings",
     titleCycles: "View circular dependencies",
     titleWarnings: "View warnings",
+    hotspots: "hotspots",
+    titleHotspots: "View structural hotspots (load-bearing modules)",
+    violations: "violations",
+    titleViolations: "View contract violations",
     ariaLabel: "Analysis summary",
   },
   sidePanel: {
@@ -200,12 +231,15 @@ const enUS: Locale = {
     tabNode: "Node",
     tabCycles: "Cycles",
     tabWarnings: "Warnings",
+    tabHotspots: "Hotspots",
+    tabViolations: "Violations",
   },
   nodeDetail: {
     empty: "Click any node in the graph to see its upstream and downstream dependencies.",
     fanIn: "Fan-in",
     fanOut: "Fan-out",
     role: "Role",
+    roleIsolated: "Isolated",
     roleCircular: "In a cycle",
     roleEntry: "Entry point",
     roleLeaf: "Leaf",
@@ -241,6 +275,17 @@ const enUS: Locale = {
       DUPLICATE_PATH: "Duplicate path",
     },
   },
+  hotspots: {
+    fanInTitle: "Most depended-on (fan-in)",
+    fanOutTitle: "Most dependencies (fan-out)",
+    empty: "No nodes to rank.",
+    isolatedCount: (n) => `Isolated files: ${n}`,
+    isolatedTitle: "Isolated files",
+  },
+  violations: {
+    empty: "No contract loaded, or no violations. ✓",
+    rule: (from, to) => `${from} → ${to} not allowed`,
+  },
   search: {
     placeholder: "Search files by path…",
     ariaLabel: "Search nodes by path",
@@ -257,6 +302,8 @@ const enUS: Locale = {
     titleCsv: "Export node/edge summary as CSV",
     titlePng: "Export the graph image as PNG",
     titleSvg: "Export the graph image as SVG (vector)",
+    exportBriefing: "Export AI briefing (Markdown)",
+    titleBriefing: "Compact contract + violations + hotspots for AI",
   },
   depNode: {
     titleFanIn: "Fan-in (depended on by)",
@@ -272,15 +319,22 @@ const enUS: Locale = {
   legend: {
     title: "Legend",
     shapeAxis: "Shape / tint = layer",
-    borderAxis: "Border = role (entry / leaf / cycle)",
+    borderAxis: "Left bar = role (entry / cycle; leaf is plain)",
     tierFrontend: "Frontend",
     tierBackend: "Backend",
     tierShared: "Shared",
     tierUnknown: "Unclassified (dashed)",
     crossTierEdge: "Cross-tier edge (frontend ↔ backend)",
+    violationEdge: "Contract violation (forbidden import)",
   },
   langSwitcher: {
     ariaLabel: "Switch language",
+  },
+  edgeStyle: {
+    label: "Edges",
+    curved: "Curved",
+    orthogonal: "Orthogonal",
+    hint: "Toggle edge routing: curved bezier or orthogonal right-angles",
   },
   collapse: {
     collapseAll: "Collapse all",

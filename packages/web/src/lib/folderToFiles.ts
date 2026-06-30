@@ -31,6 +31,11 @@ const SKIP_DIRS = new Set([
   "venv",
   ".mypy_cache",
   ".pytest_cache",
+  // Conventionally-parked code: not part of the live module graph. Analysing it
+  // only surfaces false UNRESOLVED_IMPORT noise (its siblings were left behind
+  // when the code was archived), so we skip it the same way we skip build output.
+  "_archive",
+  ".archive",
 ]);
 
 async function collectFiles(

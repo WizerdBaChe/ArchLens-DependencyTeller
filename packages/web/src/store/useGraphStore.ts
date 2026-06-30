@@ -4,6 +4,7 @@ import type {
   AliasConfig,
   AnalysisError,
   AnalysisSummary,
+  ArchitectureContract,
   GraphNode,
   ImpactTrace,
   InputFile,
@@ -31,23 +32,35 @@ interface GraphState {
   selectedCycleIndex: number | null;
   searchQuery: string;
   tierFilter: TierFilter;
-  sidePanelTab: "node" | "cycles" | "warnings";
+  sidePanelTab: "node" | "cycles" | "warnings" | "hotspots" | "violations";
+  /** Edge routing: "bezier" = original soft curves, "smoothstep" = orthogonal. */
+  edgeStyle: EdgeStyle;
   /** Directory groups currently collapsed into a single aggregate node. */
   collapsedGroups: Set<string>;
 
   // actions
-  runAnalysis: (projectName: string, files: InputFile[], alias: AliasConfig) => void;
+  runAnalysis: (projectName: string, files: InputFile[], alias: AliasConfig, contract?: ArchitectureContract) => void;
   selectNode: (nodeId: string | null) => void;
   selectGroup: (group: string | null) => void;
   selectCycle: (index: number | null) => void;
   setSearchQuery: (query: string) => void;
   setTierFilter: (filter: TierFilter) => void;
-  setSidePanelTab: (tab: "node" | "cycles" | "warnings") => void;
+  setSidePanelTab: (tab: "node" | "cycles" | "warnings" | "hotspots" | "violations") => void;
+  setEdgeStyle: (style: EdgeStyle) => void;
   toggleGroupCollapsed: (group: string) => void;
   collapseAllGroups: () => void;
   expandAllGroups: () => void;
   reset: () => void;
 }
+
+export type EdgeStyle = "bezier" | "smoothstep";
+
+/**
+ * Above this node count, the first render auto-collapses every foldable
+ * directory so a large graph opens as a readable overview instead of a hairball.
+ * The user can expand from there. Smaller graphs open fully expanded as before.
+ */
+export const AUTO_COLLAPSE_NODE_THRESHOLD = 40;
 
 const initialState = {
   status: "idle" as AnalysisStatus,
@@ -61,20 +74,27 @@ const initialState = {
   searchQuery: "",
   tierFilter: "all" as TierFilter,
   sidePanelTab: "cycles" as const,
+  edgeStyle: "bezier" as EdgeStyle,
   collapsedGroups: new Set<string>(),
 };
 
 export const useGraphStore = create<GraphState>((set) => ({
   ...initialState,
 
-  runAnalysis: (projectName, files, alias) => {
+  runAnalysis: (projectName, files, alias, contract) => {
     set({ status: "analyzing", error: null });
 
     // Analysis is synchronous CPU work; yield to the next tick first so the
     // "analyzing" state actually paints before the main thread blocks.
     setTimeout(() => {
-      const result = analyzeProject({ projectName, files, alias });
+      const result = analyzeProject({ projectName, files, alias, contract });
       if (result.ok) {
+        // Large graphs open collapsed-to-overview so they aren't an unreadable
+        // hairball on first paint; small graphs open fully expanded as before.
+        const autoCollapsed =
+          result.graph.nodes.length > AUTO_COLLAPSE_NODE_THRESHOLD
+            ? selectCollapsibleGroups({ graph: result.graph } as GraphState)
+            : new Set<string>();
         set({
           status: "ready",
           projectName,
@@ -85,7 +105,7 @@ export const useGraphStore = create<GraphState>((set) => ({
           selectedGroup: null,
           selectedCycleIndex: null,
           sidePanelTab: result.graph.cycles.length > 0 ? "cycles" : "warnings",
-          collapsedGroups: new Set<string>(),
+          collapsedGroups: autoCollapsed,
         });
       } else {
         set({ status: "error", error: result.error, graph: null, summary: null });
@@ -117,6 +137,8 @@ export const useGraphStore = create<GraphState>((set) => ({
     })),
 
   setSidePanelTab: (tab) => set({ sidePanelTab: tab }),
+
+  setEdgeStyle: (style) => set({ edgeStyle: style }),
 
   toggleGroupCollapsed: (group) =>
     set((state) => {
@@ -219,6 +241,50 @@ export function selectCollapsibleGroups(state: GraphState): Set<string> {
     counts.set(n.group, (counts.get(n.group) ?? 0) + 1);
   }
   return new Set([...counts].filter(([, c]) => c >= 2).map(([g]) => g));
+}
+
+// ---------------------------------------------------------------------------
+// Hotspots — A1 (承重牆排行)
+// ---------------------------------------------------------------------------
+
+export const HOTSPOTS_TOP_N = 10;
+
+export interface HotspotEntry {
+  id: string;
+  fanin: number;
+  fanout: number;
+}
+
+/** Top-N by fan-in and by fan-out, plus the isolated-file list. Pure view over nodes. */
+export function selectHotspots(state: GraphState): {
+  byFanIn: HotspotEntry[];
+  byFanOut: HotspotEntry[];
+  isolated: string[];
+} {
+  if (!state.graph) return { byFanIn: [], byFanOut: [], isolated: [] };
+  const ns = state.graph.nodes;
+  const toEntry = (n: GraphNode): HotspotEntry => ({
+    id: n.id,
+    fanin: n.metrics.fanin,
+    fanout: n.metrics.fanout,
+  });
+  const byFanIn = [...ns]
+    .filter((n) => n.metrics.fanin > 0)
+    .sort((a, b) => b.metrics.fanin - a.metrics.fanin)
+    .slice(0, HOTSPOTS_TOP_N)
+    .map(toEntry);
+  const byFanOut = [...ns]
+    .filter((n) => n.metrics.fanout > 0)
+    .sort((a, b) => b.metrics.fanout - a.metrics.fanout)
+    .slice(0, HOTSPOTS_TOP_N)
+    .map(toEntry);
+  const isolated = ns.filter((n) => n.metrics.isIsolated).map((n) => n.id);
+  return { byFanIn, byFanOut, isolated };
+}
+
+/** Edge ids that violate at least one contract rule. Empty set when no contract loaded. */
+export function selectViolatingEdgeIds(state: GraphState): Set<string> {
+  return new Set((state.graph?.violations ?? []).map((v) => v.edgeId));
 }
 
 /** The distinct tiers present in the current graph (used to decide whether to show tier UI). */

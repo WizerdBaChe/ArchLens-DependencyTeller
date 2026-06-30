@@ -9,6 +9,8 @@
 import { buildGraph } from "./graphBuilder.js";
 import { detectCycles, markCircularMembers } from "./analyzer/detectCycles.js";
 import { buildSummary, computeFanCounts, traceImpact } from "./analyzer/metrics.js";
+import { assignLayers } from "./analyzer/assignLayers.js";
+import { checkContract } from "./analyzer/checkContract.js";
 import { validateInput } from "./validators/validateInput.js";
 import type {
   AnalysisResult,
@@ -17,9 +19,12 @@ import type {
   ImpactTrace,
   NormalizedGraph,
   ProjectInput,
+  Violation,
 } from "./types.js";
 
 export * from "./types.js";
+export { parseContract } from "./validators/parseContract.js";
+export type { ContractParseResult } from "./validators/parseContract.js";
 
 /**
  * Runs the full pipeline: validate → parse → resolve → build graph →
@@ -87,9 +92,16 @@ export function analyzeProject(input: ProjectInput): AnalysisResult {
           isEntry: fin === 0 && fout > 0,
           isLeaf: fout === 0 && fin > 0,
           isCircular: circularNodeIds.has(node.id),
+          isIsolated: fin === 0 && fout === 0,
         },
       };
     });
+
+    let violations: Violation[] = [];
+    if (input.contract) {
+      const layerOf = assignLayers(finalNodes, input.contract.layers);
+      violations = checkContract(finalEdges, layerOf, input.contract);
+    }
 
     const graph: NormalizedGraph = {
       project: {
@@ -102,6 +114,7 @@ export function analyzeProject(input: ProjectInput): AnalysisResult {
       edges: finalEdges,
       cycles,
       warnings: [...validationWarnings, ...buildWarnings],
+      violations,
     };
 
     return { ok: true, graph };

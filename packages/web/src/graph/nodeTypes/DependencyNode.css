@@ -8,6 +8,11 @@
   transition: opacity var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out),
     box-shadow var(--duration-base) var(--ease-out);
   position: relative;
+  /* Role accent = a left bar drawn as an INSET shadow, so it hugs the node's
+     rounded corner exactly (a separate ::before sliver couldn't follow a 14px
+     radius and left a visible gap). Defaults to transparent = no role. */
+  --role-accent: transparent;
+  box-shadow: inset 3px 0 0 0 var(--role-accent);
 }
 
 .dep-node__group {
@@ -78,28 +83,34 @@
   color: var(--color-text-primary);
 }
 
+/* Role axis = the left accent bar (--role-accent) + matching border + label.
+   Only the two "notable" roles get a colour: entry (blue) and circular (amber).
+   Entry uses blue, NOT violet — violet is the backend tier tint, and the two
+   would otherwise be mistaken for each other.
+   Leaf and interior ("default") nodes are the BASELINE: no bar, neutral border.
+   Leaves are the majority of files, so colouring them would just add noise; the
+   leaf/interior distinction lives in the side panel (fan-out = 0). */
 .dep-node--entry {
-  border-color: var(--color-accent-violet);
+  --role-accent: var(--color-accent-blue);
+  border-color: var(--color-accent-blue);
 }
 .dep-node--entry .dep-node__label {
-  color: var(--color-accent-violet);
-}
-
-.dep-node--leaf {
-  border-color: var(--color-accent-cyan-dim);
+  color: var(--color-accent-blue);
 }
 
 .dep-node--circular {
+  --role-accent: var(--color-accent-amber);
   border-color: var(--color-accent-amber);
-  box-shadow: 0 0 0 1px rgba(245, 165, 36, 0.25);
 }
 .dep-node--circular .dep-node__label {
   color: var(--color-accent-amber);
 }
 
+/* Keep the role bar visible alongside the selection ring (both are box-shadows,
+   so they must be composed in one declaration). */
 .dep-node.is-selected {
   border-color: var(--color-accent-cyan);
-  box-shadow: 0 0 0 2px rgba(79, 209, 197, 0.35);
+  box-shadow: inset 3px 0 0 0 var(--role-accent), 0 0 0 2px rgba(79, 209, 197, 0.35);
 }
 
 .dep-node.is-highlighted {
@@ -111,50 +122,31 @@
 }
 
 /* ---------------------------------------------------------------------------
- * Tier axis — SHAPE + background tint. Orthogonal to the role axis above
- * (which owns the border colour), so a node shows both at once without clash.
+ * Tier axis — SHAPE + background tint only. Orthogonal to the role axis above
+ * (which owns the left bar + border), so a node shows both at once without
+ * clash. The tier no longer draws its own coloured left bar — that slot now
+ * belongs to role; tier is read from the silhouette + tint (+ the legend).
  *   frontend → cool tint, fully rounded         (web UI / Python GUI)
  *   backend  → warm tint, squared-off left edge  (server modules)
  *   shared   → neutral surface, balanced radius
  *   unknown  → muted + dashed border             (awaiting classification)
- * Each tier also gets a coloured left bar via ::before for at-a-glance grouping.
+ * Tints layer OVER an opaque surface so edges passing behind a node are hidden
+ * by it (they "go underneath") instead of showing through.
  * --------------------------------------------------------------------------- */
-.dep-node::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  border-top-left-radius: inherit;
-  border-bottom-left-radius: inherit;
-  background: transparent;
-}
-
 .dep-node--tier-frontend {
-  background: linear-gradient(180deg, rgba(79, 209, 197, 0.10), rgba(79, 209, 197, 0.03));
+  background: linear-gradient(180deg, rgba(79, 209, 197, 0.10), rgba(79, 209, 197, 0.03)), var(--color-surface);
   border-radius: var(--radius-lg); /* fully rounded — "soft" UI feel */
-}
-.dep-node--tier-frontend::before {
-  background: var(--color-accent-cyan);
 }
 
 .dep-node--tier-backend {
-  background: linear-gradient(180deg, rgba(139, 124, 246, 0.10), rgba(139, 124, 246, 0.03));
+  background: linear-gradient(180deg, rgba(139, 124, 246, 0.10), rgba(139, 124, 246, 0.03)), var(--color-surface);
   /* squared-off left edge distinguishes the silhouette at a glance */
   border-radius: 2px var(--radius-md) var(--radius-md) 2px;
-}
-.dep-node--tier-backend::before {
-  background: var(--color-accent-violet);
-  width: 4px;
 }
 
 .dep-node--tier-shared {
   background: var(--color-surface);
   border-radius: var(--radius-md);
-}
-.dep-node--tier-shared::before {
-  background: var(--color-text-tertiary);
 }
 
 .dep-node--tier-unknown {
@@ -162,7 +154,4 @@
   border-style: dashed;
   opacity: 0.92;
   border-radius: var(--radius-md);
-}
-.dep-node--tier-unknown::before {
-  background: transparent;
 }

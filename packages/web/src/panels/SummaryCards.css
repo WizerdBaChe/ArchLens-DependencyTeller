@@ -55,3 +55,11 @@
 .summary-card--alert {
   border-color: var(--color-accent-amber-dim);
 }
+
+.summary-card--violation .summary-card__value {
+  color: var(--color-accent-red);
+}
+
+.summary-card--violation {
+  border-color: rgba(229, 72, 77, 0.35);
+}

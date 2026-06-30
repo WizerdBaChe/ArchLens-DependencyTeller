@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import type { DragEvent } from "react";
-import type { InputFile } from "@archlens/core";
+import type { ArchitectureContract, InputFile } from "@archlens/core";
+import { parseContract } from "@archlens/core";
 import { useGraphStore } from "../store/useGraphStore";
 import { zipToFiles } from "../lib/zipToFiles";
 import { folderToFiles, isFolderPickerSupported } from "../lib/folderToFiles";
@@ -10,6 +11,14 @@ import { useLocale } from "../i18n";
 import "./InputPanel.css";
 
 type InputMode = "zip" | "folder" | "paste";
+
+/** Scans the file list for archlens.contract.json and returns the parsed contract if valid. */
+function extractContract(files: InputFile[]): ArchitectureContract | undefined {
+  const contractFile = files.find((f) => f.path.endsWith("archlens.contract.json"));
+  if (!contractFile) return undefined;
+  const result = parseContract(contractFile.content);
+  return result.ok ? result.contract : undefined;
+}
 
 const PASTE_PLACEHOLDER = `=== src/app.ts ===
 import { Button } from "./components/Button";
@@ -120,14 +129,14 @@ export function InputPanel() {
       if (skipped.length > 0 || truncated) {
         setLocalNotice(t.input.noticeAnalyzing(files.length, skipped.length, truncated));
       }
-      runAnalysis(projectName, files, alias);
+      runAnalysis(projectName, files, alias, extractContract(files));
     } else if (mode === "folder") {
       const files = folderFilesRef.current;
       if (!files || files.length === 0) {
         setLocalNotice(t.input.errorSelectFolder);
         return;
       }
-      runAnalysis(projectName, files, alias);
+      runAnalysis(projectName, files, alias, extractContract(files));
     } else {
       const { files, noMarkersFound } = parsePastedText(pasteText);
       if (noMarkersFound) {
@@ -138,7 +147,7 @@ export function InputPanel() {
         setLocalNotice(t.input.errorNoPasteBlocks);
         return;
       }
-      runAnalysis(projectName, files, alias);
+      runAnalysis(projectName, files, alias, extractContract(files));
     }
   }, [mode, zipFile, pasteText, aliasText, projectName, runAnalysis, t]);
 

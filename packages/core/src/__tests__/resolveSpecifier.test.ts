@@ -44,4 +44,54 @@ describe("resolveSpecifier", () => {
     const result = resolveSpecifier("src/app.tsx", "./missing", fileSet, undefined);
     expect(result).toEqual({ status: "unresolved" });
   });
+
+  describe("TypeScript ESM .js → .ts remapping", () => {
+    const esmFileSet = new Set([
+      "packages/core/src/index.ts",
+      "packages/core/src/graphBuilder.ts",
+      "packages/core/src/analyzer/detectCycles.ts",
+      "packages/core/src/util/matchPattern.ts",
+      "packages/core/src/types.ts",
+    ]);
+
+    it("resolves .js specifier to the matching .ts file on disk", () => {
+      const result = resolveSpecifier(
+        "packages/core/src/index.ts",
+        "./graphBuilder.js",
+        esmFileSet,
+        undefined
+      );
+      expect(result).toEqual({ status: "file", id: "packages/core/src/graphBuilder.ts" });
+    });
+
+    it("resolves parent-relative .js specifier across directories", () => {
+      const result = resolveSpecifier(
+        "packages/core/src/analyzer/detectCycles.ts",
+        "../types.js",
+        esmFileSet,
+        undefined
+      );
+      expect(result).toEqual({ status: "file", id: "packages/core/src/types.ts" });
+    });
+
+    it("resolves deep sub-path .js specifier to .ts", () => {
+      const result = resolveSpecifier(
+        "packages/core/src/index.ts",
+        "./analyzer/detectCycles.js",
+        esmFileSet,
+        undefined
+      );
+      expect(result).toEqual({ status: "file", id: "packages/core/src/analyzer/detectCycles.ts" });
+    });
+
+    it("still resolves extensionless specifiers after remap logic", () => {
+      const result = resolveSpecifier(
+        "packages/core/src/index.ts",
+        "./graphBuilder",
+        esmFileSet,
+        undefined
+      );
+      expect(result).toEqual({ status: "file", id: "packages/core/src/graphBuilder.ts" });
+    });
+  });
 });
