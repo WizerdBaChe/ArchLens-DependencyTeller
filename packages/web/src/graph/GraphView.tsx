@@ -28,7 +28,10 @@ import { CollapseControls } from "./CollapseControls";
 import { TierOverlay } from "./TierOverlay";
 import "./GraphView.css";
 
-const nodeTypes = { dependency: DependencyNode, group: GroupNode };
+// NB: the key MUST NOT be "group" — ReactFlow reserves that as a built-in node
+// type and paints its own translucent-grey container behind the custom content.
+// "groupNode" sidesteps the collision so only our GroupNode chrome renders.
+const nodeTypes = { dependency: DependencyNode, groupNode: GroupNode };
 
 function buildBaseFocusSet(
   edges: GraphEdge[],
@@ -181,7 +184,7 @@ export function GraphView() {
       if (dn.kind === "group") {
         return {
           id: dn.id,
-          type: "group",
+          type: "groupNode",
           position,
           selected: dn.id === selectedDisplayId,
           data: {
@@ -286,7 +289,7 @@ export function GraphView() {
         onNodeClick={(_, node) => {
           // Group body click highlights neighbours only (no side panel); the
           // in-node "+" button owns expansion.
-          if (node.type === "group") {
+          if (node.type === "groupNode") {
             const data = node.data as GroupNodeData;
             selectGroup(data.group);
             return;
