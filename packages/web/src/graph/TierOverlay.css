@@ -128,6 +128,30 @@
   border-radius: var(--radius-sm);
 }
 
+/* Role swatches — border-only boxes mirroring the node's role border colour
+   (the tier swatches above carry tint; these carry just the border = role). */
+.tier-legend__swatch--role-entry {
+  background: var(--color-surface);
+  border-color: var(--color-accent-blue);
+  border-radius: var(--radius-sm);
+}
+
+.tier-legend__swatch--role-leaf {
+  background: var(--color-surface);
+  border-color: var(--color-accent-cyan-dim);
+  border-radius: var(--radius-sm);
+}
+
+.tier-legend__swatch--role-circular {
+  background: var(--color-surface);
+  border-color: var(--color-accent-amber);
+  border-radius: var(--radius-sm);
+}
+
+.tier-legend__items--edges {
+  margin-top: var(--space-1);
+}
+
 /* A short dashed line standing in for the cross-tier edge style on the canvas. */
 .tier-legend__edge {
   display: inline-block;
@@ -136,4 +160,8 @@
   border: none;
   border-top: 2px dashed var(--color-accent-magenta);
   flex: none;
+}
+
+.tier-legend__edge--violation {
+  border-top: 2px dashed var(--color-accent-red);
 }

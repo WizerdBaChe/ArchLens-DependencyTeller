@@ -28,7 +28,8 @@
   --color-accent-cyan-dim: #2c6e69;
   --color-accent-amber: #f5a524;    /* cycle / fault / warning */
   --color-accent-amber-dim: #7a5318;
-  --color-accent-violet: #8b7cf6;   /* entry nodes */
+  --color-accent-violet: #8b7cf6;   /* backend tier tint/bar */
+  --color-accent-blue: #5b9bff;     /* entry-point role (distinct from every tier colour) */
   --color-accent-magenta: #d6409f;  /* cross-tier (frontend↔backend boundary) edges */
   --color-accent-red: #e5484d;      /* contract violation edges (highest priority) */
   --color-danger: #f0506e;
@@ -82,7 +83,8 @@
   --color-accent-cyan-dim: #99f0e6;
   --color-accent-amber: #b45309;    /* amber-700 — fault/cycle */
   --color-accent-amber-dim: #fde2b3;
-  --color-accent-violet: #6d28d9;   /* entry */
+  --color-accent-violet: #6d28d9;   /* backend tier */
+  --color-accent-blue: #2563eb;     /* entry-point role */
   --color-accent-magenta: #be185d;  /* cross-tier */
   --color-accent-red: #be123c;      /* contract violation */
   --color-danger: #dc2626;
@@ -94,6 +96,7 @@
   --color-accent-amber: #ffb454;
   --color-accent-amber-dim: #4a3410;
   --color-accent-violet: #b69bff;
+  --color-accent-blue: #6aa6ff;     /* entry-point role */
   --color-accent-magenta: #ff7ad1;
   --color-accent-red: #ff5a5a;      /* contract violation */
   --color-danger: #ff6b5b;

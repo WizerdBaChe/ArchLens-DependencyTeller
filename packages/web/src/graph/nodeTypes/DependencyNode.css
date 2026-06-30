@@ -78,11 +78,14 @@
   color: var(--color-text-primary);
 }
 
+/* Entry role uses blue, NOT violet — violet is the backend tier colour, and the
+   two would otherwise be mistaken for each other. Role (border) and tier (tint)
+   stay on disjoint hues. */
 .dep-node--entry {
-  border-color: var(--color-accent-violet);
+  border-color: var(--color-accent-blue);
 }
 .dep-node--entry .dep-node__label {
-  color: var(--color-accent-violet);
+  color: var(--color-accent-blue);
 }
 
 .dep-node--leaf {
