@@ -22,8 +22,11 @@ const SUPPORTED_EXTENSIONS = new Set([
 
 const SKIP_DIRS = new Set([
   "node_modules", ".git", "dist", "build",
-  ".cache", "coverage", ".venv", "__pycache__",
-  ".next", ".nuxt", "out",
+  ".cache", "coverage", ".venv", "venv", "__pycache__",
+  ".next", ".nuxt", "out", ".turbo", ".mypy_cache", ".pytest_cache",
+  // Conventionally-parked code: skipped like build output so archived files
+  // don't surface false UNRESOLVED_IMPORT warnings (kept in sync with the web scanner).
+  "_archive", ".archive",
 ]);
 
 function collectFiles(dir: string, root: string): InputFile[] {
