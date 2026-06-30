@@ -1,10 +1,14 @@
 import type { NormalizedGraph } from "@archlens/core";
 import { sanitizeFileName, triggerDownload } from "./exportJson.js";
 
+/** Cap on the unbounded list sections (cycles, isolated) so a large project
+ *  can't bloat the briefing. Anything beyond is summarised as "…and N more". */
+const LIST_CAP = 15;
+
 /**
  * Builds a compact Markdown briefing suitable for pasting directly into an AI
- * prompt. Covers the four facts an AI needs most: project scale, load-bearing
- * modules, contract violations, and isolated files.
+ * prompt. Covers the facts an AI needs most: project scale, load-bearing
+ * modules, contract violations, circular dependencies, and isolated files.
  */
 export function buildBriefingMarkdown(graph: NormalizedGraph, topN = 10): string {
   const { project, nodes, edges, cycles, violations } = graph;
@@ -33,7 +37,7 @@ export function buildBriefingMarkdown(graph: NormalizedGraph, topN = 10): string
   }
   lines.push("");
 
-  // Contract violations
+  // Contract violations (always listed in full — these are the actionable gate).
   if (violations.length > 0) {
     lines.push(`## Contract violations (${violations.length})`);
     for (const v of violations) {
@@ -43,13 +47,26 @@ export function buildBriefingMarkdown(graph: NormalizedGraph, topN = 10): string
     lines.push("");
   }
 
-  // Isolated files
+  // Circular dependencies — list the files in each cycle, not just the count,
+  // so the reader can act on them. Each cycle reads "a → b → a".
+  if (cycles.length > 0) {
+    lines.push(`## Circular dependencies (${cycles.length})`);
+    for (const cycle of cycles.slice(0, LIST_CAP)) {
+      lines.push(`- ${cycle.map((id) => `\`${id}\``).join(" → ")}`);
+    }
+    if (cycles.length > LIST_CAP) lines.push(`- …and ${cycles.length - LIST_CAP} more`);
+    lines.push("");
+  }
+
+  // Isolated files (capped — usually few, but a large project shouldn't bloat
+  // the briefing; the omitted count is stated rather than silently dropped).
   const isolated = nodes.filter((n) => n.metrics.isIsolated);
   if (isolated.length > 0) {
     lines.push(`## Isolated files (${isolated.length})`);
-    for (const n of isolated) {
+    for (const n of isolated.slice(0, LIST_CAP)) {
       lines.push(`- \`${n.id}\``);
     }
+    if (isolated.length > LIST_CAP) lines.push(`- …and ${isolated.length - LIST_CAP} more`);
     lines.push("");
   }
 
