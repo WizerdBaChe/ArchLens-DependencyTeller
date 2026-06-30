@@ -83,16 +83,14 @@ export function TierOverlay() {
           </>
         )}
 
-        {/* Role (border) key — always shown; these colours appear in every graph. */}
+        {/* Role (left bar) key — always shown; these colours appear in every graph.
+            Only the two notable roles are coloured: entry + circular. Leaf and
+            interior files are the uncoloured baseline, so they need no swatch. */}
         <div className="tier-legend__axis tier-legend__axis--muted">{t.legend.borderAxis}</div>
         <ul className="tier-legend__items">
           <li>
             <span className="tier-legend__swatch tier-legend__swatch--role-entry" />
             {t.nodeDetail.roleEntry}
-          </li>
-          <li>
-            <span className="tier-legend__swatch tier-legend__swatch--role-leaf" />
-            {t.nodeDetail.roleLeaf}
           </li>
           <li>
             <span className="tier-legend__swatch tier-legend__swatch--role-circular" />

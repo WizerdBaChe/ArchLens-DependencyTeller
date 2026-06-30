@@ -184,7 +184,7 @@ const zhTW: Locale = {
   legend: {
     title: "圖例",
     shapeAxis: "形狀／底色 = 層級",
-    borderAxis: "邊框 = 角色（入口／末端／循環）",
+    borderAxis: "左色條 = 角色（入口／循環；末端為一般節點）",
     tierFrontend: "前端",
     tierBackend: "後端",
     tierShared: "共用",

@@ -112,4 +112,6 @@ function applyTierBands(
 }
 
 export const NODE_DIMENSIONS = { width: NODE_WIDTH, height: NODE_HEIGHT };
-export const GROUP_DIMENSIONS = { width: 220, height: 64 };
+// Matches NODE_DIMENSIONS so a collapsed group reads as the same-sized member of
+// the node family (just a folder affordance), not a differently-shaped box.
+export const GROUP_DIMENSIONS = { width: NODE_WIDTH, height: NODE_HEIGHT };

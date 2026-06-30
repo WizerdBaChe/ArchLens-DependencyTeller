@@ -319,7 +319,7 @@ const enUS: Locale = {
   legend: {
     title: "Legend",
     shapeAxis: "Shape / tint = layer",
-    borderAxis: "Border = role (entry / leaf / cycle)",
+    borderAxis: "Left bar = role (entry / cycle; leaf is plain)",
     tierFrontend: "Frontend",
     tierBackend: "Backend",
     tierShared: "Shared",

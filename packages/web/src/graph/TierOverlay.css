@@ -128,23 +128,19 @@
   border-radius: var(--radius-sm);
 }
 
-/* Role swatches — border-only boxes mirroring the node's role border colour
-   (the tier swatches above carry tint; these carry just the border = role). */
+/* Role swatches — a left bar on a neutral box, mirroring the node's role accent
+   bar (the tier swatches above carry tint; these carry just the left bar = role). */
 .tier-legend__swatch--role-entry {
   background: var(--color-surface);
-  border-color: var(--color-accent-blue);
-  border-radius: var(--radius-sm);
-}
-
-.tier-legend__swatch--role-leaf {
-  background: var(--color-surface);
-  border-color: var(--color-accent-cyan-dim);
+  border-color: var(--color-border);
+  border-left: 3px solid var(--color-accent-blue);
   border-radius: var(--radius-sm);
 }
 
 .tier-legend__swatch--role-circular {
   background: var(--color-surface);
-  border-color: var(--color-accent-amber);
+  border-color: var(--color-border);
+  border-left: 3px solid var(--color-accent-amber);
   border-radius: var(--radius-sm);
 }
 
